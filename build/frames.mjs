@@ -3,7 +3,7 @@ import { mkdirSync, rmSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 
-const FPS = 25, W = 1280, H = 880;
+const FPS = 25, W = 1280, H = 690;
 const OUT = 'assets/frames';
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(OUT, { recursive: true });

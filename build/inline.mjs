@@ -11,7 +11,7 @@ const poster = `data:image/png;base64,${b64('assets/poster.min.png')}`;
 const snippet = `<figure class="step4-video">
   <video
     id="briefing"
-    width="1280" height="880"
+    width="1280" height="690"
     muted playsinline loop controls preload="metadata"
     poster="${poster}"
     aria-describedby="briefing-alt">
@@ -19,11 +19,11 @@ const snippet = `<figure class="step4-video">
     <source src="${webm}" type="video/webm">
   </video>
   <figcaption id="briefing-alt">
-    The Morning Briefing skill running: it scans overnight supplier mail
-    (Nordwind's housings slip two weeks, Kestrel's lead time moves 21&nbsp;&rarr;&nbsp;28
-    days), cross-references four purchase orders past their promise date,
-    checks today's calendar, then writes a six-line briefing. Illustration
-    using fictional suppliers and orders.
+    Making the skill. You run the check by hand once &mdash; overnight supplier mail,
+    purchase orders past their promise date, today&rsquo;s calendar &mdash; then ask Claude
+    to save it as a weekday 7am routine. Claude captures the four steps you just used
+    and where each one reads from, and saves it. Illustration; suppliers and orders
+    are fictional.
   </figcaption>
 </figure>`;
 

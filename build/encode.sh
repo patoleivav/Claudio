@@ -9,7 +9,7 @@ IN="assets/frames/%04d.png"
 LAST=$(ls assets/frames | tail -1)
 
 # 1.5s hold on the final frame so the payoff lands before the loop restarts
-VF="scale=1280:880:flags=lanczos,tpad=stop_mode=clone:stop_duration=1.5"
+VF="scale=1280:690:flags=lanczos,tpad=stop_mode=clone:stop_duration=1.5"
 
 # H.264 — listed first in the page; the only source Safari will play.
 # -pix_fmt yuv420p is required for Safari/QuickTime when encoding from PNG.
@@ -24,10 +24,10 @@ VF="scale=1280:880:flags=lanczos,tpad=stop_mode=clone:stop_duration=1.5"
 # Poster: final frame, palettised. Flat UI colour compresses hard —
 # 180KB truecolour becomes ~58KB at 128 colours with no visible loss.
 "$F" -y -loglevel error -i "assets/frames/$LAST" \
-     -vf "scale=1280:880:flags=lanczos,palettegen=max_colors=128:stats_mode=full" \
+     -vf "scale=1280:690:flags=lanczos,palettegen=max_colors=128:stats_mode=full" \
      assets/_pal.png
 "$F" -y -loglevel error -i "assets/frames/$LAST" -i assets/_pal.png \
-     -lavfi "scale=1280:880:flags=lanczos[x];[x][1:v]paletteuse=dither=none" \
+     -lavfi "scale=1280:690:flags=lanczos[x];[x][1:v]paletteuse=dither=none" \
      assets/poster.min.png
 rm -f assets/_pal.png
 
