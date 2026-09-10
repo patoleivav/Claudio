@@ -1,21 +1,10 @@
-# Build intermediates
+# Dependencies
 node_modules/
-dist/
-build/out/
-assets/generated/
 
-# Raw media — never commit unscrubbed captures
-*.mov
-raw/
-recordings/
+# Rendered frames — regenerable via build/frames.mjs, ~66MB
+assets/frames/
 
-# Encoded media before inlining
-*.mp4
-*.webm
-mp4.txt
-webm.txt
-poster.txt
-
-# OS
+# Scratch
+*.log
 .DS_Store
 Thumbs.db

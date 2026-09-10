@@ -543,183 +543,151 @@ verified (see §10, product claims age).
 
 ---
 
-## 6. Video — sourcing, not recording
+## 6. Video — built from the page's own components
 
-**Do not record a new session for this.** Use footage that already exists.
-That removes the data-leakage risk entirely and saves a production cycle — but
-it introduces a rights question that has to be settled *before* the video goes
-into a client-facing deliverable.
+**This is already built.** The video for step 4 exists in this repository, made
+by composing the same mock components the page itself uses and exporting the
+result. Nothing was recorded, no third-party footage is used, and no rights
+question arises — which is exactly why this route was chosen over borrowing
+Anthropic's demo footage (see §10.1).
 
-### 6.1 Rights gate — settle this first
+### 6.1 What ships
 
-This page is commercial material that Atomic puts in front of paying clients.
-That is a different category from internal use, and it changes what footage is
-available.
+| File | Size | Role |
+|---|---|---|
+| `assets/briefing.mp4` | 127 KB | H.264 — first source, the only one Safari plays |
+| `assets/briefing.webm` | 327 KB | VP8 — second source |
+| `assets/poster.min.png` | 58 KB | Final frame, palettised to 128 colours |
+| `assets/step4-video.html` | 684 KB | The three above inlined as data URIs, ready to paste |
 
-**Anthropic's terms, as published:**
+1280×880, 16.5s (15s of animation plus a 1.5s hold on the final frame so the
+payoff lands before the loop restarts). Total inlined weight ~684 KB against a
+2 MB budget and a 16 MB page cap.
 
-- The `anthropics/claude-code` repository — which contains an official product
-  demo animation — is marked **"© Anthropic PBC. All rights reserved."** It is
-  not open-licensed. Public visibility is not a licence.
-- Anthropic's Trademark Guidelines state that their marks may be used **only as
-  specifically permitted and only in materials approved beforehand**, that no
-  alteration of the marks is allowed, and that nothing may imply sponsorship,
-  endorsement, or affiliation without express authorisation.
-- The route for an existing business relationship is **marketing@anthropic.com**.
+### 6.2 What it shows
 
-**What this means practically:** dropping Anthropic's demo footage into an
-Atomic client deliverable is not a free action. Neither, strictly, is a page
-full of Claude screenshots used as marketing collateral. Atomic is presumably
-an Anthropic customer, so the ask is reasonable and likely to be granted — but
-it is an ask, and it should be made once, in writing, covering the whole
-training programme rather than this page alone.
+The Morning Briefing skill running end to end: overnight supplier mail scanned
+(Nordwind's moulded housings slip two weeks, Kestrel's lead time moves 21 → 28
+days), four purchase orders matched against their promise dates, today's
+calendar checked, then a six-line briefing typing itself out.
 
-**Do this before Phase 4:** email marketing@anthropic.com describing the use —
-client-facing AI enablement training material, showing Claude in use — and get
-written confirmation. Keep the reply on file.
+Every supplier, SKU and order number is fictional — Nordwind Components,
+Baltic Freight, Kestrel Polymers, Auralite Packaging, PO-4471/4488/4502/4519,
+SKU-2214. **Reuse this same set everywhere on the page** so the story stays
+coherent across the video, the folder tree in step 2 and the connector answer
+in step 3.
 
-### 6.2 Source order
+### 6.3 Source layout
 
-**First choice — footage Atomic already owns.** Check the marketing drive and
-the existing site for product or session recordings Atomic shot itself. No
-rights question, no attribution, and the tone already matches the brand. If
-anything usable exists, it wins on every axis. Start here.
-
-**Second choice — Anthropic's official assets, once cleared.** Their newsroom
-carries a downloadable press kit, and there is official product demo footage in
-their public repositories. Two caveats even after clearance: the widely
-available demo animation shows the **terminal** product, which is off-message
-for a supply chain leader who will never open a terminal; and it is roughly
-11 MB as a GIF, so it needs transcoding to video before it is embeddable
-(§6.4).
-
-**Third choice — build the animation, don't film it.** Compose the sequence in
-HTML/CSS from the **same mock components already built for steps 1–4**, then
-export it to video. Nothing is recorded, nothing is captured, no third-party
-footage is used, and no rights question arises. It is also the only option that
-is exactly on-message: it can show a supply chain morning briefing rather than
-generic footage, in Atomic's palette, at any length you like.
-
-This third option is the recommended default if Atomic has no footage of its
-own, precisely because it sidesteps §6.1 completely. Building an animation from
-your own components is not recording a session.
-
-### 6.3 What the sequence must show
-
-Roughly 15 seconds, silent, whichever source it comes from:
-
-1. The skill card, activated (1s)
-2. Overnight supplier mail being scanned — subject lines flicking past (4s)
-3. Open POs matching against the exception list (3s)
-4. Today's calendar checked (2s)
-5. The six-line briefing writing itself out (5s)
-
-If you use pre-existing footage that does not match this beat sheet, **change
-the beat sheet, not the truth** — the caption must describe what the video
-actually shows. Never caption borrowed footage as something it is not.
-
-### 6.4 Encode
-
-Target **under 2 MB combined**, keeping the whole page well under the 16 MB cap.
-
-```bash
-# If the source is a GIF (e.g. an official demo animation), transcode first.
-# A 1552x992 GIF at ~11 MB becomes well under 1 MB as H.264.
-ffmpeg -i source.gif -vf "scale=1280:-2,fps=25" \
-  -c:v libx264 -profile:v main -crf 30 -preset slow \
-  -movflags +faststart -an out.mp4
-
-# From an HTML animation: render frames with a headless browser, then encode.
-ffmpeg -framerate 25 -i frames/%04d.png -vf "scale=1280:-2" \
-  -c:v libx264 -profile:v main -crf 30 -preset slow \
-  -pix_fmt yuv420p -movflags +faststart -an out.mp4
-
-# VP8 WebM — secondary source
-ffmpeg -i out.mp4 -c:v libvpx -crf 33 -b:v 0 -an out.webm
-
-# Poster — the final frame, so a non-playing video still shows the payoff
-ffmpeg -sseof -0.5 -i out.mp4 -vframes 1 poster.png
-pngquant --quality 60-85 poster.png -o poster.min.png
+```
+src/components.css   Shared mock UI — window chrome, skill card, activity
+                     feed, briefing panel. The page imports this too, so the
+                     product UI in the video and on the page cannot drift.
+src/animation.html   The 15s timeline staged in those components.
+build/frames.mjs     Headless Chromium → 375 PNG frames at 2x.
+build/encode.sh      Frames → MP4 + WebM + poster.
+build/inline.mjs     Assets → base64 data URIs → assets/step4-video.html.
+build/verify.mjs     Loads the inlined video and asserts it decodes and plays.
 ```
 
-`-pix_fmt yuv420p` is required for Safari and QuickTime compatibility when
-encoding from PNG frames. Omit it and the file plays everywhere except Apple.
-
-If the pair exceeds 2 MB: raise `-crf`, drop to 20fps, or crop to the region
-that actually changes. Do not go below 1280 wide — text will mush.
-
-### 6.5 Inline it
-
-External media is blocked by the artifact's content security policy, so both
-sources and the poster must be **base64 data URIs** in the HTML.
+### 6.4 Regenerating it
 
 ```bash
-printf 'data:video/mp4;base64,%s\n'  "$(base64 -w0 out.mp4)"  > mp4.txt
-printf 'data:video/webm;base64,%s\n' "$(base64 -w0 out.webm)" > webm.txt
-printf 'data:image/png;base64,%s\n'  "$(base64 -w0 poster.min.png)" > poster.txt
+npm install
+npm run build      # frames → encode → inline → verify
 ```
 
-Base64 inflates by about a third — a 1.5 MB pair becomes ~2 MB of text.
+The timeline is **deterministic**: every visual is a pure function of `t` in
+seconds via `window.seek(t)`, with no `requestAnimationFrame`, no CSS animation
+and no `Date.now()`. The frame grabber seeks to exact times, so re-running
+produces identical output. If you change copy or timings, edit the `TASKS`,
+`BRIEF` and `BRIEF_START` constants at the top of the script in
+`src/animation.html` and re-run.
 
-### 6.6 If inlined video will not play
+### 6.5 Using it in the page
 
-The Phase 0 test in §8 tells you this before any effort is spent. If it fails,
-fall back to a **press-driven CSS + JS sequence** using the same mock components
-— same beats, no `<video>` element.
+Paste the contents of `assets/step4-video.html` into step 4. It is already
+configured correctly:
+
+- `muted`, `playsinline`, `loop`, `controls`, `preload="metadata"`, and a poster
+- **no `autoplay`** — it plays on the reader's press, which sidesteps browser
+  autoplay policy and reduced-motion concerns in one move
+- MP4 before WebM, so Safari picks a source it can decode
+- a `<figcaption>` carrying the same information in text, since the video is
+  silent, wired up with `aria-describedby`
+
+### 6.6 Verification status
+
+`npm run verify` confirms the inlined data URI decodes, plays and seeks —
+**PASS**, 16.52s, 1280×880.
+
+One honest caveat: that check runs in Playwright's Chromium, which is the
+open-source build and **has no H.264 decoder** (`canPlayType` returns empty for
+`avc1`, `probably` for VP8/VP9). So the MP4 path is verified as a *file*, not
+as *playback*, in this environment. Real Chrome, Safari, Edge and Firefox all
+decode H.264 — the MP4-first ordering stays correct — but confirm it on a real
+browser during Phase 0.
+
+### 6.7 If inlined video will not play at all
+
+Phase 0 Gate A tells you before anything is at stake. If the artifact CSP
+blocks `data:` in `media-src`, fall back to running `src/animation.html`
+directly in the page — the timeline is already a self-contained HTML animation,
+so the fallback is to drive `seek()` from a press instead of playing a video
+file. Same components, same beats, no `<video>` element.
 
 Then **say so plainly in the handoff.** Do not ship a CSS animation while
 describing it as an embedded video.
 
-## 7. Screenshots and product UI
+## 7. Product UI on the page
 
-### 7.1 Two sources, clearly distinguished
+### 7.1 One source, no borrowed assets
 
-**Real screenshots** — capture from your own Claude Desktop for: the Cowork
-window, the connector picker, a skill mid-run, and the artifact panel. These
-are the authentic anchors.
+Every piece of product UI on this page is **recreated in CSS/SVG** from
+`src/components.css` — the same components the video is composed from. There
+are no captured screenshots and no third-party image assets anywhere in the
+build. That is a deliberate choice, and it buys three things at once:
 
-**Recreated UI** — build the small in-page mocks (the chat bubbles in step 1,
-the folder tree in step 2, the switch panel in step 3, the skill card in step
-4) in CSS/SVG. They stay crisp at any zoom, weigh almost nothing, sit in
-Atomic's palette, and can be animated. **Caption them as illustrations.** Never
-imply a drawing is a capture.
+1. **No rights question.** Nothing belonging to anyone else is redistributed.
+   See §10.1.
+2. **No data-leakage risk.** There is no real account, inbox or supplier list
+   anywhere near the page.
+3. **No drift.** The window chrome in step 1, the skill card in step 4 and the
+   frames of the video are literally the same CSS. Change a token, everything
+   updates together.
 
-### 7.2 Capture rules
+They also stay crisp at any zoom, weigh a few KB rather than a few hundred, and
+sit natively in Atomic's palette.
 
-- 2x / Retina, then downscale — never upscale
-- Crop to the region that carries meaning; a full desktop screenshot at page
-  width is unreadable
-- Same OS theme and same window chrome across every shot
-- Compress with `pngquant --quality 60-85`, or convert to WebP with a PNG
-  fallback if size demands
-- Inline as base64 data URIs, same as the video
+### 7.2 Caption them honestly
 
-### 7.3 Swap slots
+These are illustrations, not screenshots, and must never be presented as
+captures. One quiet line under the demo section covers it:
 
-Give every visual a stable hook — `data-swap-slot="step-3-connector"` — so a
-real screenshot can replace a recreation later without touching layout. Fix the
-container's aspect ratio so swapping causes no reflow.
+> *Product interfaces shown are illustrations. Suppliers, orders and figures
+> are fictional.*
 
-### 7.4 Rights and redaction — mandatory
+That single sentence discharges both the accuracy obligation and the
+fictional-data disclosure.
 
-**Rights.** Screenshots of Claude in commercial marketing material fall under
-the same trademark question as the video — see §6.1. Cover screenshots and
-video in the one written request to marketing@anthropic.com.
+### 7.3 If you later want real screenshots
 
-**Redaction.** If any screenshot comes from a live account rather than a demo
-one, it goes through the full scrub in §10.1 — supplier names, volumes, inbox
-contents, colleagues' names, notification toasts and tab titles. Prefer a
-dedicated demo account so there is nothing to scrub.
+Give every visual a stable hook — `data-swap-slot="step-3-connector"` — and fix
+its container's aspect ratio, so a real capture can drop in later without
+reflowing the layout.
 
----
+Understand what that would reintroduce, though: the rights question in §10.1,
+and a redaction obligation on every image. The recreated components avoid both.
+If real screenshots do go in, use a dedicated demo account with fabricated
+data — never a live one edited afterwards.
 
 ## 8. Build workflow
 
 Run in this order.
 
-**Phase 0 — Two gates, both cheap, both first**
+**Phase 0 — One gate, cheap, first**
 
-*Gate A — will an embedded video actually play? (~15 min)*
+*Will an embedded video actually play? (~15 min)*
 
 The finished page is a single HTML file published as a Claude Artifact.
 Artifacts run under a content security policy that blocks the page from
@@ -734,18 +702,10 @@ So try it first, with a throwaway:
    HTML file with a `<video>` tag.
 2. Publish that as a throwaway artifact and open the published URL.
 3. **It plays** → the video approach works; carry on.
-   **It doesn't** → switch to the §6.6 fallback now.
+   **It doesn't** → switch to the §6.7 fallback now.
 
 Fifteen minutes here, or a day of video work discovered to be useless at the
 very end. Do it first.
-
-*Gate B — rights clearance (send it today, it has a lead time)*
-
-Read §6.1. Email marketing@anthropic.com describing the intended use and get
-written confirmation covering both the video and the Claude screenshots. It is
-almost certainly a yes, but it is not instant, and the page cannot go to
-clients until it lands. Send it before you start building so it clears in
-parallel.
 
 **Phase 1 — Brand**
 3. Pull the real hexes, logo and typeface from atomic.supply (§3.1).
@@ -769,9 +729,11 @@ parallel.
 9. Build the close and footer.
 
 **Phase 4 — Media**
-10. Source the video per §6.2, encode and inline it (§6.4–6.5). Do not record
-    a session.
-11. Gather, compress and inline the screenshots (§7).
+10. Paste `assets/step4-video.html` into step 4 (§6.5). The video is already
+    built; only regenerate it (`npm run build`) if you change its copy or
+    timings.
+11. Nothing to gather for screenshots — the product UI is the recreated
+    components from §7.
 
 **Phase 5 — QA**
 12. Work §11 end to end. Record actual measured numbers, not ticks.
@@ -808,51 +770,53 @@ flinch, tense up, or ask what a word means — rewrite that line.
 
 ## 10. Red flags
 
-### 10.1 Rights — highest consequence, and the one with a lead time
+### 10.1 Rights — avoided by design, easy to reintroduce
 
-This page is commercial material shown to paying clients. Anthropic's published
-terms are narrower than most people assume:
+This page is commercial material shown to paying clients, and Anthropic's
+published terms are narrower than most people assume: their product
+repositories are **"© Anthropic PBC. All rights reserved."** (public visibility
+is not a licence), and their Trademark Guidelines require use to be
+**specifically permitted and in materials approved beforehand**, prohibit
+altering the marks, and prohibit anything implying sponsorship, endorsement or
+affiliation.
 
-- Their product repositories are **"© Anthropic PBC. All rights reserved."**
-  Public visibility is not a licence.
-- Their Trademark Guidelines require use to be **specifically permitted and in
-  materials approved beforehand**, prohibit altering the marks, and prohibit
-  anything implying sponsorship, endorsement or affiliation.
+**The current build sidesteps all of it.** The video is composed from Atomic's
+own components (§6) and the product UI is recreated in CSS (§7), so nothing
+belonging to anyone else is redistributed. Referring to Claude by name to
+describe the product being taught is ordinary referential use.
 
-Using their footage, and arguably a page of their screenshots, in Atomic's
-client-facing collateral therefore needs written clearance —
-**marketing@anthropic.com**. Ask once, covering the whole training programme.
-Start it on day one; it gates shipping, not building.
+**What would reintroduce it:** dropping in Anthropic's demo footage, using real
+product screenshots as marketing imagery, putting their logo in a lockup with
+Atomic's, or any "partner" / "authorised" / "in partnership with" wording. If
+you decide you want any of those, get written clearance first —
+**marketing@anthropic.com** — and ask once, covering the whole training
+programme rather than this page alone.
 
-### 10.1a Real data in borrowed or captured footage
+### 10.1a Fictional data — keep it that way
 
-Lower risk now that nothing is being recorded, but not zero — any screenshot
-taken from a live account carries the same exposure. Real supplier names,
-volumes, pricing, inbox contents and colleagues' names, in a deliverable shown
-to *every* client, some of whom compete with each other.
+Nothing on the page comes from a live account, and it should stay that way.
+Every supplier, SKU, order and figure is invented (§6.2). The exposure this
+avoids is real: a deliverable shown to *every* client, some of whom compete
+with each other, is the last place real supplier names, volumes or pricing
+should appear.
 
-**Rules:**
-- Use a dedicated demo account with fabricated data. Don't capture a real inbox
-  and edit afterwards — something always survives.
-- Every supplier, SKU, customer and person on the page is invented.
-- Check frame by frame through transitions. Notification toasts, tab titles,
-  autocomplete dropdowns and window previews are where real data leaks.
-- A second person reviews the final media specifically for leakage, as a pass
-  separate from general QA.
+If anyone later swaps in a real capture, it goes through a full scrub —
+supplier names, volumes, inbox contents, colleagues' names, notification
+toasts, tab titles, autocomplete dropdowns — reviewed frame by frame, by a
+second person, as a pass separate from general QA.
 
 ### 10.2 Everything else
 
 | Risk | Handling |
 |---|---|
-| Inlined video blocked by CSP | Phase 0 Gate A; §6.6 fallback |
+| Inlined video blocked by CSP | Phase 0 gate; §6.7 fallback |
 | `#0052FF` as text on dark | Fails AA at 3.44:1 — step up the ramp to `--blue-300` `#6194FF` (6.78:1) |
 | Part 1 reading as a preamble | If the curve feels like throat-clearing, the page has failed at its actual job. It must stand alone |
 | Implying Anthropic endorsement | Atomic delivers training. No "partner"/"authorised" language, no Anthropic logo lockup, no altered marks — see §10.1 |
-| Recreated UI mistaken for capture | Caption every illustration as such |
-| Borrowed footage captioned as something else | The caption describes what the video actually shows — §6.3 |
+| Illustration mistaken for a capture | One caption line covers the whole demo section — §7.2 |
 | Product claims ageing | Date the page. Keep a short note of where each claim was verified. Re-check before each new client |
 | Step 6 reading as obligation | Badge it optional, place it after the close of the main sequence |
-| Safari < 16 and VP8 | MP4 listed first, WebM second |
+| Safari and VP8 | MP4 listed first, WebM second; H.264 playback confirmed on a real browser in Phase 0 — see §6.6 |
 | Autoplay blocked | Play on press; `muted` + `playsinline` regardless |
 | Motion sickness / vestibular | Every animation behind `prefers-reduced-motion` |
 | Hover-only interactions | Nothing may be hover-only — all four interactive steps must work on tap and on keyboard |
@@ -950,19 +914,17 @@ Record **measured values**, not ticks. "Contrast 5.75:1" beats "checked".
 - [ ] Read aloud to a non-technical listener with no flinches
 - [ ] Spelling and grammar pass
 
-### 11.7 Rights — blocks shipping
-- [ ] Written clearance received from marketing@anthropic.com covering video
-      and screenshots — date: ______
-- [ ] Video source recorded (Atomic-owned / Anthropic-cleared / built from
-      page components) — which: ______
-- [ ] Video caption describes what the footage actually shows
-- [ ] No Anthropic marks altered; no logo lockup; no partner/endorsement wording
+### 11.7 Rights
+- [ ] No third-party footage, screenshots or logos anywhere in the page
+- [ ] No Anthropic logo lockup; no "partner" / "authorised" / "endorsed" wording
+- [ ] Product UI captioned as illustration (§7.2)
+- [ ] If any of the above changed, written clearance obtained — date: ______
 
-### 11.8 Data leakage — separate reviewer
-- [ ] Final video reviewed frame by frame through every transition
-- [ ] No notification toasts, tab titles, autocomplete or window previews
-- [ ] Every screenshot scrubbed, or sourced from a demo account
-- [ ] Second reviewer signed off specifically on leakage — name: ______
+### 11.8 Fictional data
+- [ ] Every supplier, SKU, order and figure is invented
+- [ ] The same fictional set used in the video, step 2 and step 3 — coherent
+- [ ] No real capture anywhere; if one was added, scrubbed and second-reviewed
+      — reviewer: ______
 
 ### 11.9 Print
 - [ ] Prints legibly
@@ -978,10 +940,10 @@ Record **measured values**, not ticks. "Contrast 5.75:1" beats "checked".
    the published page, not only locally.
 2. Every box in §11 either ticked with a measured value, or explicitly listed
    as failed in the handoff.
-3. Data-leakage review signed off by a second person.
-4. Video embedded as a real `<video>` element — or, if Gate A failed, the CSS
-   fallback shipped and **described accurately** in the handoff.
-5. Written rights clearance on file, and the video's source recorded.
+3. All data on the page fictional and internally consistent.
+4. Video embedded as a real `<video>` element — or, if the Phase 0 gate
+   failed, the fallback shipped and **described accurately** in the handoff.
+5. No third-party assets in the page; product UI captioned as illustration.
 6. Part 1 stands alone; the seam is visible; Part 2 is the larger half.
 7. Someone non-technical has read it aloud without flinching.
 8. Brand tokens confined to one `:root` block, so the next client is a

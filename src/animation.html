@@ -1,0 +1,153 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Morning Briefing — step 4 animation</title>
+<link rel="stylesheet" href="components.css">
+<style>
+  html,body{margin:0;background:var(--bg)}
+  body{width:1280px;min-height:880px;display:grid;place-items:center;
+       padding:24px 0;box-sizing:border-box;font-family:var(--font)}
+  .stage{width:1180px}
+  .win__body{padding:24px 26px}
+</style>
+
+<div class="stage">
+  <div class="win">
+    <div class="win__bar">
+      <div class="win__dots"><i></i><i></i><i></i></div>
+      <div class="win__title">Cowork — Supply Chain Morning Briefing</div>
+    </div>
+    <div class="win__body">
+
+      <div class="skill">
+        <div class="skill__head">
+          <div>
+            <div class="skill__name">Supply Chain Morning Briefing</div>
+            <div class="skill__meta">Runs weekdays, 7:00am</div>
+          </div>
+          <button class="btn" id="run">▶ Run</button>
+        </div>
+        <ul class="skill__steps">
+          <li><b>1</b> Scan overnight supplier mail</li>
+          <li><b>2</b> Cross-reference open POs</li>
+          <li><b>3</b> Check today's calendar</li>
+          <li><b>4</b> Write it up in six lines</li>
+        </ul>
+      </div>
+
+      <div class="feed" id="feed"></div>
+      <div class="brief" id="brief" style="display:none">
+        <div class="brief__head">This morning</div>
+        <div class="brief__body" id="briefBody"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   Deterministic timeline. Every visual is a pure function of t
+   (seconds). Nothing uses requestAnimationFrame, CSS animation or
+   Date.now(), so a frame grabber can seek to an exact time and get a
+   byte-identical render every run.
+   ------------------------------------------------------------------ */
+const DURATION = 15.0;
+
+const TASKS = [
+  { at:0.8, done:4.6, label:"Scanning overnight supplier mail", lines:[
+      { at:1.5, who:"Nordwind Components", txt:"moulded housings — 2 week slip", k:"late" },
+      { at:2.4, who:"Baltic Freight",      txt:"booking confirmed, SKU-2214",   k:"ok"   },
+      { at:3.2, who:"Kestrel Polymers",    txt:"lead time 21 → 28 days",        k:"warn" },
+      { at:4.0, who:"Auralite Packaging",  txt:"invoice query, no action",      k:null   } ]},
+  { at:4.8, done:7.7, label:"Cross-referencing open POs", lines:[
+      { at:5.4, who:"PO-4471", txt:"12 days past promise", k:"late" },
+      { at:6.0, who:"PO-4488", txt:"6 days past promise",  k:"late" },
+      { at:6.6, who:"PO-4502", txt:"3 days past promise",  k:"late" },
+      { at:7.2, who:"PO-4519", txt:"1 day past promise",   k:"late" } ]},
+  { at:7.9, done:9.8, label:"Checking today's calendar", lines:[
+      { at:8.5, who:"10:00", txt:"S&OP review — agenda not circulated", k:"warn" },
+      { at:9.2, who:"14:30", txt:"Kestrel quarterly call",              k:null  } ]},
+  { at:10.0, done:14.6, label:"Writing your briefing", lines:[] }
+];
+
+const BRIEF = [
+  "Nordwind's moulded housings slip two weeks — that lands on the Q3 build.",
+  "Four POs crossed their promise date over the weekend.",
+  "Kestrel raised lead time from 21 to 28 days. Reorder point needs moving.",
+  "Baltic Freight confirmed the delayed SKU-2214 booking.",
+  "The demand file hasn't been touched since the 4th.",
+  "S&OP is at 10:00 and the agenda hasn't gone out."
+];
+const BRIEF_START = 10.4, BRIEF_PER = 0.68;
+
+/* ---------- build DOM once ---------- */
+const feed = document.getElementById('feed');
+TASKS.forEach((t,i)=>{
+  const el = document.createElement('div');
+  el.className = 'task'; el.dataset.state='idle'; el.dataset.i=i;
+  el.innerHTML =
+    '<div class="task__dot"><svg viewBox="0 0 12 12" fill="none">'+
+    '<path d="M1.5 6.2 4.4 9 10.5 2.8" stroke="#fff" stroke-width="2.2" '+
+    'stroke-linecap="round" stroke-linejoin="round"/></svg></div>'+
+    '<div><div class="task__label">'+t.label+'</div>'+
+    '<div class="task__lines"></div></div>';
+  const box = el.querySelector('.task__lines');
+  t.lines.forEach(l=>{
+    const d = document.createElement('div');
+    d.className='line'; d.style.opacity='0';
+    d.innerHTML = '<b>'+l.who+'</b><span>'+l.txt+'</span>'+
+      (l.k ? '<span class="tag" data-k="'+l.k+'">'+
+        ({late:'late',warn:'watch',ok:'ok'})[l.k]+'</span>' : '');
+    box.appendChild(d);
+  });
+  feed.appendChild(el);
+});
+
+const briefBody = document.getElementById('briefBody');
+BRIEF.forEach((line,i)=>{
+  const r = document.createElement('div');
+  r.className='brief__row'; r.style.opacity='0';
+  r.innerHTML = '<span>'+(i+1)+'</span><div class="txt"></div>';
+  briefBody.appendChild(r);
+});
+
+/* ---------- pure render ---------- */
+const ease = x => 1 - Math.pow(1-x, 3);
+const clamp01 = x => x<0?0:x>1?1:x;
+
+function seek(t){
+  document.getElementById('run').dataset.pressed = (t>=0.55 && t<1.15) ? '1' : '0';
+
+  TASKS.forEach((task,i)=>{
+    const el = feed.children[i];
+    el.dataset.state = t>=task.done ? 'done' : t>=task.at ? 'run' : 'idle';
+    const lines = el.querySelectorAll('.line');
+    task.lines.forEach((l,j)=>{
+      const p = clamp01((t - l.at)/0.32);
+      lines[j].style.opacity = p;
+      lines[j].style.transform = 'translateY('+((1-ease(p))*6).toFixed(2)+'px)';
+    });
+  });
+
+  const brief = document.getElementById('brief');
+  const bp = clamp01((t - (BRIEF_START-0.35))/0.35);
+  brief.style.display = bp>0 ? '' : 'none';
+  brief.style.opacity = bp;
+
+  BRIEF.forEach((text,i)=>{
+    const row = briefBody.children[i];
+    const start = BRIEF_START + i*BRIEF_PER;
+    const p = clamp01((t - start)/0.30);
+    row.style.opacity = p;
+    // character reveal, deterministic
+    const chars = Math.round(clamp01((t - start)/(BRIEF_PER*0.82)) * text.length);
+    const typing = chars>0 && chars<text.length;
+    row.querySelector('.txt').innerHTML =
+      text.slice(0,chars) + (typing ? '<i class="caret"></i>' : '');
+  });
+}
+
+window.seek = seek;
+window.DURATION = DURATION;
+seek(0);
+</script>
