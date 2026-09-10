@@ -1,11 +1,11 @@
 /* ============================================================
-   Atomic — "Working With Claude" shared mock components
+   Atomic , "Working With Claude" shared mock components
    Used by both the one-pager and the step-4 animation, so the
    product UI on the page and in the video cannot drift apart.
    ============================================================ */
 
 :root{
-  /* Brand ramp — every value derived from #0052FF */
+  /* Brand ramp , every value derived from #0052FF */
   --blue-900:#062A78; --blue-800:#04359D; --blue-700:#0240C2;
   --blue-600:#0149E2; --blue-500:#0052FF; --blue-400:#3878FF;
   --blue-300:#6194FF; --blue-200:#8CB1FF; --blue-100:#C7D9FF;
@@ -34,7 +34,7 @@
     --border:var(--blue-800);
     --text:#E8E8E8;          /* 16.16:1 */
     --text-muted:#B4B4B4;    /*  9.55:1 */
-    --accent:var(--blue-300);        /* 6.78:1 — never blue-500 on dark */
+    --accent:var(--blue-300);        /* 6.78:1 , never blue-500 on dark */
     --accent-strong:var(--blue-200); /* 9.28:1 */
     --accent-fill:var(--blue-500);
     --accent-ink:#FFFFFF;

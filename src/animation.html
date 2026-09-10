@@ -1,6 +1,6 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>Making the Morning Briefing skill — step 4 animation</title>
+<title>Making the Morning Briefing skill (step 4 animation)</title>
 <link rel="stylesheet" href="fonts-inline.css">
 <link rel="stylesheet" href="components.css">
 <style>
@@ -15,7 +15,7 @@
   <div class="win">
     <div class="win__bar">
       <div class="win__dots"><i></i><i></i><i></i></div>
-      <div class="win__title">Cowork — Supply Chain</div>
+      <div class="win__title">Cowork / Supply Chain</div>
     </div>
     <div class="win__body">
       <div class="chat">
@@ -31,9 +31,9 @@
           <div class="turn__who">Claude</div>
           <div class="reply">
             <div class="reply__meta" id="meta">Read 24 emails · 61 open POs · 3 calendar events</div>
-            <div class="reply__row" id="r1"><span class="dot"></span><span><b>Nordwind Components</b> — moulded housings slip two weeks</span></div>
-            <div class="reply__row" id="r2"><span class="dot"></span><span><b>Four POs</b> past their promise date — PO-4471 the worst at 12 days</span></div>
-            <div class="reply__row" id="r3"><span class="dot"></span><span><b>S&amp;OP review 10:00</b> — agenda not circulated</span></div>
+            <div class="reply__row" id="r1"><span class="dot"></span><span><b>Nordwind Components</b>: moulded housings slip two weeks</span></div>
+            <div class="reply__row" id="r2"><span class="dot"></span><span><b>Four POs</b> past their promise date. PO-4471 is the worst at 12 days</span></div>
+            <div class="reply__row" id="r3"><span class="dot"></span><span><b>S&amp;OP review 10:00</b>, agenda not circulated</span></div>
           </div>
         </div>
 
@@ -83,7 +83,7 @@
 
 <script>
 /* Deterministic timeline: every visual is a pure function of t (seconds).
-   No rAF, no CSS animation, no Date.now() — so the frame grabber can seek
+   No rAF, no CSS animation, no Date.now(), so the frame grabber can seek
    to an exact time and get a byte-identical render on every run. */
 const DURATION = 21.0;
 
@@ -110,10 +110,10 @@ function fade(el, start, t, dur){
 }
 
 function seek(t){
-  /* 1 — you type the request by hand */
+  /* 1. you type the request by hand */
   type($('q1'), $('c1'), Q1, 0.3, 3.2, t);
 
-  /* 2 — Claude answers */
+  /* 2. Claude answers */
   fade($('t2'), 4.0, t, .4);
   [['meta',4.3],['r1',4.9],['r2',5.5],['r3',6.1]].forEach(([id,at])=>{
     const p = clamp01((t-at)/0.3);
@@ -122,11 +122,11 @@ function seek(t){
     el.style.transform = 'translateY('+((1-ease(p))*5).toFixed(2)+'px)';
   });
 
-  /* 3 — you ask for it to become a habit */
+  /* 3. you ask for it to become a habit */
   fade($('t3'), 7.4, t, .35);
   type($('q2'), $('c2'), Q2, 7.8, 1.9, t);
 
-  /* 4 — Claude packages what you just did */
+  /* 4. Claude packages what you just did */
   fade($('bld'), 10.4, t, .4);
   type($('sname'), $('c3'), SNAME, 10.9, 1.4, t);
   $('swhen').textContent = t >= 12.6 ? SWHEN : '';

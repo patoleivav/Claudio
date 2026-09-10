@@ -19,11 +19,9 @@ const snippet = `<figure class="step4-video">
     <source src="${webm}" type="video/webm">
   </video>
   <figcaption id="briefing-alt">
-    Making the skill. You run the check by hand once &mdash; overnight supplier mail,
-    purchase orders past their promise date, today&rsquo;s calendar &mdash; then ask Claude
-    to save it as a weekday 7am routine. Claude captures the four steps you just used
-    and where each one reads from, and saves it. Illustration; suppliers and orders
-    are fictional.
+    Making the skill. You run the check by hand once, then ask Claude to save it as a
+    weekday 7am routine. Claude captures the four steps you just used, notes where each
+    one reads from, and saves it. Illustration; suppliers and orders are fictional.
   </figcaption>
 </figure>`;
 
