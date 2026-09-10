@@ -103,53 +103,100 @@ Before building, open **atomic.supply** and confirm/capture:
 | Secondary dark | `#111111` | |
 | Background | `#FFFFFF` | |
 
-### 3.3 Contrast — computed, not eyeballed
+### 3.3 The Atomic blue ramp
 
-All figures below are WCAG 2.1 relative-luminance calculations. **Two of them
-are failures and constrain the design.**
+The contrast problem is solved **inside the palette**, not by importing an
+off-brand colour. Every blue below is `#0052FF` mixed with either `#0A0A0A`
+(shades) or `#FFFFFF` (tints), so the whole page reads as one brand blue at
+different weights.
 
-| Foreground | Background | Ratio | AA body text (4.5:1) | AA large/UI (3:1) |
+| Token | Hex | On `#FFFFFF` | On `#0A0A0A` |
+|---|---|---|---|
+| `--blue-900` | `#062A78` | **13.04:1** | 1.52:1 |
+| `--blue-800` | `#04359D` | **10.49:1** | 1.89:1 |
+| `--blue-700` | `#0240C2` | **8.35:1** | 2.37:1 |
+| `--blue-600` | `#0149E2` | **6.88:1** | 2.88:1 |
+| `--blue-500` | `#0052FF` | **5.75:1** | 3.44:1 |
+| `--blue-400` | `#3878FF` | 3.96:1 | **5.00:1** |
+| `--blue-300` | `#6194FF` | 2.92:1 | **6.78:1** |
+| `--blue-200` | `#8CB1FF` | 2.13:1 | **9.28:1** |
+| `--blue-100` | `#C7D9FF` | 1.42:1 | **13.95:1** |
+| `--blue-50`  | `#EDF3FF` | 1.11:1 | **17.79:1** |
+
+Bold = passes WCAG AA for body text (4.5:1). All figures are computed
+relative-luminance values, not estimates.
+
+**How the ramp resolves the problem.** `#0052FF` (blue-500) is the brand blue
+and works as text on white at 5.75:1. It fails on dark at 3.44:1 — so on dark
+grounds the page steps up the same ramp to **`--blue-300` (`#6194FF`) at
+6.78:1**. Still Atomic blue, just the tint that survives a dark background.
+
+**Role assignment:**
+
+| Role | Light theme | Dark theme |
+|---|---|---|
+| Accent text (body size) | `--blue-500` `#0052FF` | `--blue-300` `#6194FF` |
+| Accent text (small / dense) | `--blue-700` `#0240C2` | `--blue-200` `#8CB1FF` |
+| Accent fill (buttons, bars, curve stroke) | `--blue-500` | `--blue-500` |
+| Label on an accent fill | `#FFFFFF` | `#FFFFFF` |
+| Tinted surface / hover ground | `--blue-50` | `--blue-900` |
+| Quiet border | `--blue-100` | `--blue-800` |
+
+`--blue-400` `#3878FF` passes on dark at 5.00:1 and sits closer to the brand
+blue than blue-300. Use it if you want the dark theme to read more saturated;
+blue-300 is the safer default because 6.78:1 leaves headroom for antialiasing
+on thin type.
+
+### 3.4 Neutrals and status
+
+Neutrals are the charcoal and white already in the palette, plus the two greys
+needed to make muted text legal on each ground:
+
+| Token | Hex | On its ground |
+|---|---|---|
+| `--text` light | `#0A0A0A` | 19.80:1 on white |
+| `--text-muted` light | `#595959` | 7.00:1 on white |
+| `--text` dark | `#E8E8E8` | 16.16:1 on `#0A0A0A` |
+| `--text-muted` dark | `#B4B4B4` | 9.55:1 on `#0A0A0A` |
+
+Status colours are the one necessary extension beyond blue — a supply chain
+dashboard cannot signal risk in blue. Keep them desaturated so they sit beside
+the brand rather than competing with it, and use them **only** in step 5's
+dashboard and step 6's chips.
+
+| Role | Light | Ratio | Dark | Ratio |
 |---|---|---|---|---|
-| `#0052FF` | `#FFFFFF` | **5.75:1** | PASS | PASS |
-| `#0052FF` | `#0A0A0A` | **3.44:1** | **FAIL** | PASS |
-| `#0052FF` | `#111111` | **3.28:1** | **FAIL** | PASS |
-| `#5C8FFF` | `#0A0A0A` | **6.44:1** | PASS | PASS |
-| `#6BA3FF` | `#0A0A0A` | **7.83:1** | PASS | PASS |
-| `#003DBF` | `#FFFFFF` | **8.68:1** | PASS | PASS |
-| `#0A0A0A` | `#FFFFFF` | **19.80:1** | PASS | PASS |
-| `#595959` | `#FFFFFF` | **7.00:1** | PASS | PASS |
-| `#B4B4B4` | `#0A0A0A` | **9.55:1** | PASS | PASS |
-| `#E8E8E8` | `#0A0A0A` | **16.16:1** | PASS | PASS |
+| `--ok` | `#0F7A4C` | 5.37:1 | `#4ADE9B` | 11.51:1 |
+| `--warn` | `#8A5A00` | 5.93:1 | `#F0B429` | 10.62:1 |
+| `--risk` | `#A31515` | 7.85:1 | `#FF6B6B` | 7.13:1 |
 
-**Consequences, non-negotiable:**
-
-1. **Never set `#0052FF` as text on a dark ground.** It fails AA at 3.44:1.
-   Use `--accent-on-dark: #5C8FFF` (6.44:1) instead.
-2. `#0052FF` is fine as a *fill* on dark (buttons, rules, chart bars) because
-   non-text UI only needs 3:1 — but any label sitting **on** that fill must be
-   white or `#0A0A0A`, checked separately.
-3. For accent text needing extra weight on white (small type, dense UI), use
-   `#003DBF` at 8.68:1.
-
-### 3.4 Token block
+### 3.5 Token block
 
 Put this at the top of the `<style>`. Re-skinning for another client should be
 an edit to this block and nothing else.
 
 ```css
 :root{
+  /* Brand ramp — all derived from #0052FF */
+  --blue-900: #062A78;  --blue-800: #04359D;  --blue-700: #0240C2;
+  --blue-600: #0149E2;  --blue-500: #0052FF;  --blue-400: #3878FF;
+  --blue-300: #6194FF;  --blue-200: #8CB1FF;  --blue-100: #C7D9FF;
+  --blue-50:  #EDF3FF;
+
+  /* Roles — light theme */
   --bg:            #FFFFFF;
-  --surface:       #F7F8FA;
-  --surface-2:     #EFF1F5;
-  --border:        #DDE1E8;
-  --text:          #0A0A0A;
-  --text-muted:    #595959;   /* 7.00:1 on white */
-  --accent:        #0052FF;   /* 5.75:1 on white */
-  --accent-strong: #003DBF;   /* 8.68:1 on white — small/dense accent text */
-  --accent-ink:    #FFFFFF;   /* label colour on an --accent fill */
-  --ok:            #0F7A4C;   /* 5.37:1 on white */
-  --warn:          #8A5A00;   /* 5.93:1 on white */
-  --risk:          #A31515;   /* 7.85:1 on white */
+  --surface:       var(--blue-50);
+  --surface-2:     #F2F5FA;
+  --border:        var(--blue-100);
+  --text:          #0A0A0A;   /* 19.80:1 */
+  --text-muted:    #595959;   /*  7.00:1 */
+  --accent:        var(--blue-500);  /* 5.75:1 */
+  --accent-strong: var(--blue-700);  /* 8.35:1 — small/dense accent text */
+  --accent-fill:   var(--blue-500);
+  --accent-ink:    #FFFFFF;   /* label colour on an accent fill */
+  --ok:            #0F7A4C;
+  --warn:          #8A5A00;
+  --risk:          #A31515;
 }
 
 /* System default (no data-theme attribute) */
@@ -158,27 +205,30 @@ an edit to this block and nothing else.
     --bg:            #0A0A0A;
     --surface:       #141414;
     --surface-2:     #1C1C1C;
-    --border:        #2A2A2A;
-    --text:          #E8E8E8;  /* 16.16:1 */
-    --text-muted:    #B4B4B4;  /* 9.55:1  */
-    --accent:        #5C8FFF;  /* 6.44:1  — NOT #0052FF */
-    --accent-strong: #6BA3FF;  /* 7.83:1  */
-    --accent-ink:    #0A0A0A;
-    --ok:            #4ADE9B;  /* 11.51:1 */
-    --warn:          #F0B429;  /* 10.62:1 */
-    --risk:          #FF6B6B;  /*  7.13:1 */
+    --border:        var(--blue-800);
+    --text:          #E8E8E8;          /* 16.16:1 */
+    --text-muted:    #B4B4B4;          /*  9.55:1 */
+    --accent:        var(--blue-300);  /*  6.78:1 — NOT blue-500 */
+    --accent-strong: var(--blue-200);  /*  9.28:1 */
+    --accent-fill:   var(--blue-500);  /* fill only, never text */
+    --accent-ink:    #FFFFFF;
+    --ok:            #4ADE9B;
+    --warn:          #F0B429;
+    --risk:          #FF6B6B;
   }
 }
 
-/* Explicit dark choice — must repeat, so the toggle wins both directions */
+/* Explicit dark choice — repeat the same overrides so the toggle wins
+   in both directions. Do not rely on the media query alone. */
 :root[data-theme="dark"]{ /* …identical overrides… */ }
 
 body{ background: var(--bg); color: var(--text); }
 ```
 
-> Every value above has been contrast-checked against its own ground. If you
-> change any of them after confirming the real hexes from atomic.supply,
-> re-run the check — see §11.3.
+> Every value above is contrast-checked against its own ground. If you change
+> any of them after confirming the real hexes from atomic.supply, regenerate
+> the ramp the same way — mix the brand blue toward `#0A0A0A` for shades and
+> toward `#FFFFFF` for tints — and re-run the check in §11.3.
 
 ---
 
@@ -493,58 +543,115 @@ verified (see §10, product claims age).
 
 ---
 
-## 6. Video production
+## 6. Video — sourcing, not recording
 
-### 6.1 What to record
+**Do not record a new session for this.** Use footage that already exists.
+That removes the data-leakage risk entirely and saves a production cycle — but
+it introduces a rights question that has to be settled *before* the video goes
+into a client-facing deliverable.
 
-A real Cowork session running the Morning Briefing skill, end to end, on
-**synthetic demo data**. Roughly 15 seconds of usable footage. Silent.
+### 6.1 Rights gate — settle this first
 
-Shot list:
-1. The skill card, cursor moves to Run (1s)
-2. Mail being scanned — subject lines flicking past (4s)
-3. POs matching against the exception list (3s)
-4. Calendar check (2s)
+This page is commercial material that Atomic puts in front of paying clients.
+That is a different category from internal use, and it changes what footage is
+available.
+
+**Anthropic's terms, as published:**
+
+- The `anthropics/claude-code` repository — which contains an official product
+  demo animation — is marked **"© Anthropic PBC. All rights reserved."** It is
+  not open-licensed. Public visibility is not a licence.
+- Anthropic's Trademark Guidelines state that their marks may be used **only as
+  specifically permitted and only in materials approved beforehand**, that no
+  alteration of the marks is allowed, and that nothing may imply sponsorship,
+  endorsement, or affiliation without express authorisation.
+- The route for an existing business relationship is **marketing@anthropic.com**.
+
+**What this means practically:** dropping Anthropic's demo footage into an
+Atomic client deliverable is not a free action. Neither, strictly, is a page
+full of Claude screenshots used as marketing collateral. Atomic is presumably
+an Anthropic customer, so the ask is reasonable and likely to be granted — but
+it is an ask, and it should be made once, in writing, covering the whole
+training programme rather than this page alone.
+
+**Do this before Phase 4:** email marketing@anthropic.com describing the use —
+client-facing AI enablement training material, showing Claude in use — and get
+written confirmation. Keep the reply on file.
+
+### 6.2 Source order
+
+**First choice — footage Atomic already owns.** Check the marketing drive and
+the existing site for product or session recordings Atomic shot itself. No
+rights question, no attribution, and the tone already matches the brand. If
+anything usable exists, it wins on every axis. Start here.
+
+**Second choice — Anthropic's official assets, once cleared.** Their newsroom
+carries a downloadable press kit, and there is official product demo footage in
+their public repositories. Two caveats even after clearance: the widely
+available demo animation shows the **terminal** product, which is off-message
+for a supply chain leader who will never open a terminal; and it is roughly
+11 MB as a GIF, so it needs transcoding to video before it is embeddable
+(§6.4).
+
+**Third choice — build the animation, don't film it.** Compose the sequence in
+HTML/CSS from the **same mock components already built for steps 1–4**, then
+export it to video. Nothing is recorded, nothing is captured, no third-party
+footage is used, and no rights question arises. It is also the only option that
+is exactly on-message: it can show a supply chain morning briefing rather than
+generic footage, in Atomic's palette, at any length you like.
+
+This third option is the recommended default if Atomic has no footage of its
+own, precisely because it sidesteps §6.1 completely. Building an animation from
+your own components is not recording a session.
+
+### 6.3 What the sequence must show
+
+Roughly 15 seconds, silent, whichever source it comes from:
+
+1. The skill card, activated (1s)
+2. Overnight supplier mail being scanned — subject lines flicking past (4s)
+3. Open POs matching against the exception list (3s)
+4. Today's calendar checked (2s)
 5. The six-line briefing writing itself out (5s)
 
-### 6.2 Capture settings
+If you use pre-existing footage that does not match this beat sheet, **change
+the beat sheet, not the truth** — the caption must describe what the video
+actually shows. Never caption borrowed footage as something it is not.
 
-- Record at **2560×1600 or higher**, downscale to 1280×800 for delivery — this
-  keeps text crisp after compression
-- Hide bookmarks bars, notification badges, dock clutter, and any personal
-  avatar
-- Set the OS to light mode for consistency with the page's default
-- No cursor trails, no click-highlight plugins
-- Trim ruthlessly. Every second over 15 costs file size for no teaching gain
+### 6.4 Encode
 
-### 6.3 Encode
-
-Target: **under 2 MB combined.** Budget the whole page well under the 16 MB
-artifact cap.
+Target **under 2 MB combined**, keeping the whole page well under the 16 MB cap.
 
 ```bash
-# H.264 MP4 — primary source, universal playback
-ffmpeg -i raw.mov -vf "scale=1280:-2,fps=25" \
+# If the source is a GIF (e.g. an official demo animation), transcode first.
+# A 1552x992 GIF at ~11 MB becomes well under 1 MB as H.264.
+ffmpeg -i source.gif -vf "scale=1280:-2,fps=25" \
   -c:v libx264 -profile:v main -crf 30 -preset slow \
   -movflags +faststart -an out.mp4
 
+# From an HTML animation: render frames with a headless browser, then encode.
+ffmpeg -framerate 25 -i frames/%04d.png -vf "scale=1280:-2" \
+  -c:v libx264 -profile:v main -crf 30 -preset slow \
+  -pix_fmt yuv420p -movflags +faststart -an out.mp4
+
 # VP8 WebM — secondary source
-ffmpeg -i raw.mov -vf "scale=1280:-2,fps=25" \
-  -c:v libvpx -crf 33 -b:v 0 -an out.webm
+ffmpeg -i out.mp4 -c:v libvpx -crf 33 -b:v 0 -an out.webm
 
 # Poster — the final frame, so a non-playing video still shows the payoff
-ffmpeg -sseof -0.5 -i raw.mov -vframes 1 -vf "scale=1280:-2" poster.png
+ffmpeg -sseof -0.5 -i out.mp4 -vframes 1 poster.png
 pngquant --quality 60-85 poster.png -o poster.min.png
 ```
 
+`-pix_fmt yuv420p` is required for Safari and QuickTime compatibility when
+encoding from PNG frames. Omit it and the file plays everywhere except Apple.
+
 If the pair exceeds 2 MB: raise `-crf`, drop to 20fps, or crop to the region
-that actually changes. Do not reduce resolution below 1280 wide — text will
-mush.
+that actually changes. Do not go below 1280 wide — text will mush.
 
-### 6.4 Inline it
+### 6.5 Inline it
 
-External media is blocked by the artifact CSP, so both sources and the poster
-must be **base64 data URIs** in the HTML.
+External media is blocked by the artifact's content security policy, so both
+sources and the poster must be **base64 data URIs** in the HTML.
 
 ```bash
 printf 'data:video/mp4;base64,%s\n'  "$(base64 -w0 out.mp4)"  > mp4.txt
@@ -552,19 +659,16 @@ printf 'data:video/webm;base64,%s\n' "$(base64 -w0 out.webm)" > webm.txt
 printf 'data:image/png;base64,%s\n'  "$(base64 -w0 poster.min.png)" > poster.txt
 ```
 
-Base64 inflates by ~33% — a 1.5 MB pair becomes ~2 MB of text. Budget for it.
+Base64 inflates by about a third — a 1.5 MB pair becomes ~2 MB of text.
 
-### 6.5 If `data:` video is blocked
+### 6.6 If inlined video will not play
 
-The smoke test in §8 tells you before you have invested any effort. If it
-fails, fall back to a **scroll/press-driven CSS+JS sequence** using the same
-mock components already built for the page — same scenes, same beats, no
-`<video>` element. Rebuild the shot list as keyframed steps.
+The Phase 0 test in §8 tells you this before any effort is spent. If it fails,
+fall back to a **press-driven CSS + JS sequence** using the same mock components
+— same beats, no `<video>` element.
 
-Then **say so plainly in the handoff**. Do not ship a CSS animation while
+Then **say so plainly in the handoff.** Do not ship a CSS animation while
 describing it as an embedded video.
-
----
 
 ## 7. Screenshots and product UI
 
@@ -596,9 +700,16 @@ Give every visual a stable hook — `data-swap-slot="step-3-connector"` — so a
 real screenshot can replace a recreation later without touching layout. Fix the
 container's aspect ratio so swapping causes no reflow.
 
-### 7.4 Redaction — mandatory
+### 7.4 Rights and redaction — mandatory
 
-See §10. Every screenshot goes through the same scrub as the video.
+**Rights.** Screenshots of Claude in commercial marketing material fall under
+the same trademark question as the video — see §6.1. Cover screenshots and
+video in the one written request to marketing@anthropic.com.
+
+**Redaction.** If any screenshot comes from a live account rather than a demo
+one, it goes through the full scrub in §10.1 — supplier names, volumes, inbox
+contents, colleagues' names, notification toasts and tab titles. Prefer a
+dedicated demo account so there is nothing to scrub.
 
 ---
 
@@ -606,34 +717,61 @@ See §10. Every screenshot goes through the same scrub as the video.
 
 Run in this order.
 
-**Phase 0 — Gate (do this first, ~15 min)**
-1. Publish a throwaway artifact containing a ~50 KB test video as a `data:`
-   URI. Open the published URL and confirm it plays.
-2. **Pass** → the video branch is live. **Fail** → switch to the §6.5 fallback
-   now, before building anything else.
+**Phase 0 — Two gates, both cheap, both first**
+
+*Gate A — will an embedded video actually play? (~15 min)*
+
+The finished page is a single HTML file published as a Claude Artifact.
+Artifacts run under a content security policy that blocks the page from
+loading anything off the internet — no image URLs, no video URLs, no CDN. So
+every picture and the video have to be **baked into the file itself**, encoded
+as text (a `data:` URI). That normally works. But the policy might also block
+baked-in video specifically, and there is no way to know except to try.
+
+So try it first, with a throwaway:
+
+1. Take any tiny video, ~50 KB. Encode it as a `data:` URI. Drop it in a bare
+   HTML file with a `<video>` tag.
+2. Publish that as a throwaway artifact and open the published URL.
+3. **It plays** → the video approach works; carry on.
+   **It doesn't** → switch to the §6.6 fallback now.
+
+Fifteen minutes here, or a day of video work discovered to be useless at the
+very end. Do it first.
+
+*Gate B — rights clearance (send it today, it has a lead time)*
+
+Read §6.1. Email marketing@anthropic.com describing the intended use and get
+written confirmation covering both the video and the Claude screenshots. It is
+almost certainly a yes, but it is not instant, and the page cannot go to
+clients until it lands. Send it before you start building so it clears in
+parallel.
 
 **Phase 1 — Brand**
 3. Pull the real hexes, logo and typeface from atomic.supply (§3.1).
-4. Re-run the contrast table in §3.3 against the confirmed values. Fix any
-   pair that fails before writing a line of layout.
+4. Regenerate the blue ramp from the confirmed brand blue and re-run the
+   contrast tables in §3.3 and §3.4. Fix any failing pair before writing a
+   line of layout.
 
 **Phase 2 — Content**
 5. Write all copy first, as plain text, and read it aloud. If a sentence makes
    you sound like a vendor, cut it. Tone check in §9.
 6. Fabricate the demo dataset — supplier names, SKUs, dates, quantities. Keep
-   one list and use it consistently across the video, the screenshots, and the
+   one list and use it consistently across the video, the screenshots and the
    in-page mocks, so the story stays coherent.
 
 **Phase 3 — Page**
 7. Build Part 1: the curve, its motion, its responsive vertical fallback.
 8. Build Part 2 step by step. Build the shared mock-window components once and
-   reuse them across steps 1–4 — this is also what the video scenes are staged
-   in, so there is a single source of truth for how "Claude" looks on this page.
+   reuse them across steps 1–4. If the video ends up being built rather than
+   sourced (§6.2, third choice), these same components are what it is composed
+   from — one source of truth for how "Claude" looks on this page.
 9. Build the close and footer.
 
 **Phase 4 — Media**
-10. Record, encode, and inline the video (§6).
-11. Capture, scrub, compress and inline the screenshots (§7).
+10. Source the video per §6.2, encode and inline it (§6.4–6.5). Do not record
+    a session.
+11. Gather, compress and inline the screenshots (§7).
 
 **Phase 5 — QA**
 12. Work §11 end to end. Record actual measured numbers, not ticks.
@@ -670,33 +808,48 @@ flinch, tense up, or ask what a word means — rewrite that line.
 
 ## 10. Red flags
 
-### 10.1 Real data in the recording — highest consequence
+### 10.1 Rights — highest consequence, and the one with a lead time
 
-**A screen recording of a real Cowork session captures whatever is on screen.**
-Real supplier names, real volumes, real pricing, real inbox contents, real
-colleagues' names — in a video that goes in front of *every client*, some of
-whom are each other's competitors.
+This page is commercial material shown to paying clients. Anthropic's published
+terms are narrower than most people assume:
+
+- Their product repositories are **"© Anthropic PBC. All rights reserved."**
+  Public visibility is not a licence.
+- Their Trademark Guidelines require use to be **specifically permitted and in
+  materials approved beforehand**, prohibit altering the marks, and prohibit
+  anything implying sponsorship, endorsement or affiliation.
+
+Using their footage, and arguably a page of their screenshots, in Atomic's
+client-facing collateral therefore needs written clearance —
+**marketing@anthropic.com**. Ask once, covering the whole training programme.
+Start it on day one; it gates shipping, not building.
+
+### 10.1a Real data in borrowed or captured footage
+
+Lower risk now that nothing is being recorded, but not zero — any screenshot
+taken from a live account carries the same exposure. Real supplier names,
+volumes, pricing, inbox contents and colleagues' names, in a deliverable shown
+to *every* client, some of whom compete with each other.
 
 **Rules:**
-- Use a dedicated demo account with fabricated data. Do not record a real inbox
+- Use a dedicated demo account with fabricated data. Don't capture a real inbox
   and edit afterwards — something always survives.
 - Every supplier, SKU, customer and person on the page is invented.
-- Before encoding, watch the raw capture **frame by frame** through the
-  transitions. Notification toasts, tab titles, autocomplete dropdowns and
-  window previews are where real data leaks.
-- Same scrub for every screenshot.
-- Have a second person review the final video and screenshots specifically for
-  leakage, as a separate pass from general QA.
+- Check frame by frame through transitions. Notification toasts, tab titles,
+  autocomplete dropdowns and window previews are where real data leaks.
+- A second person reviews the final media specifically for leakage, as a pass
+  separate from general QA.
 
 ### 10.2 Everything else
 
 | Risk | Handling |
 |---|---|
-| `data:` video blocked by CSP | Phase 0 gate; §6.5 fallback |
-| `#0052FF` as text on dark | Fails AA at 3.44:1 — use `#5C8FFF` |
+| Inlined video blocked by CSP | Phase 0 Gate A; §6.6 fallback |
+| `#0052FF` as text on dark | Fails AA at 3.44:1 — step up the ramp to `--blue-300` `#6194FF` (6.78:1) |
 | Part 1 reading as a preamble | If the curve feels like throat-clearing, the page has failed at its actual job. It must stand alone |
-| Implying Anthropic endorsement | Atomic delivers training. No partner/authorised language, no Anthropic logo lockup |
+| Implying Anthropic endorsement | Atomic delivers training. No "partner"/"authorised" language, no Anthropic logo lockup, no altered marks — see §10.1 |
 | Recreated UI mistaken for capture | Caption every illustration as such |
+| Borrowed footage captioned as something else | The caption describes what the video actually shows — §6.3 |
 | Product claims ageing | Date the page. Keep a short note of where each claim was verified. Re-check before each new client |
 | Step 6 reading as obligation | Badge it optional, place it after the close of the main sequence |
 | Safari < 16 and VP8 | MP4 listed first, WebM second |
@@ -746,7 +899,7 @@ Record **measured values**, not ticks. "Contrast 5.75:1" beats "checked".
 - [ ] Body text on light ≥4.5:1 — measured: ______
 - [ ] Body text on dark ≥4.5:1 — measured: ______
 - [ ] Accent text on light ≥4.5:1 — measured: ______
-- [ ] Accent text on dark ≥4.5:1 — measured: ______
+- [ ] Accent text on dark ≥4.5:1 — measured: ______ (blue-500 will fail here; blue-300 should pass)
 - [ ] Labels on accent fills ≥4.5:1 — measured: ______
 - [ ] Status colours (ok / warn / risk) on both grounds — measured: ______
 - [ ] Non-text UI — borders, curve stroke, chart bars, switch tracks ≥3:1
@@ -797,13 +950,21 @@ Record **measured values**, not ticks. "Contrast 5.75:1" beats "checked".
 - [ ] Read aloud to a non-technical listener with no flinches
 - [ ] Spelling and grammar pass
 
-### 11.7 Data leakage — separate reviewer
-- [ ] Raw video reviewed frame by frame through every transition
+### 11.7 Rights — blocks shipping
+- [ ] Written clearance received from marketing@anthropic.com covering video
+      and screenshots — date: ______
+- [ ] Video source recorded (Atomic-owned / Anthropic-cleared / built from
+      page components) — which: ______
+- [ ] Video caption describes what the footage actually shows
+- [ ] No Anthropic marks altered; no logo lockup; no partner/endorsement wording
+
+### 11.8 Data leakage — separate reviewer
+- [ ] Final video reviewed frame by frame through every transition
 - [ ] No notification toasts, tab titles, autocomplete or window previews
-- [ ] Every screenshot scrubbed
+- [ ] Every screenshot scrubbed, or sourced from a demo account
 - [ ] Second reviewer signed off specifically on leakage — name: ______
 
-### 11.8 Print
+### 11.9 Print
 - [ ] Prints legibly
 - [ ] Motion stripped; video replaced by its poster
 - [ ] No card or curve node split across a page break
@@ -818,11 +979,12 @@ Record **measured values**, not ticks. "Contrast 5.75:1" beats "checked".
 2. Every box in §11 either ticked with a measured value, or explicitly listed
    as failed in the handoff.
 3. Data-leakage review signed off by a second person.
-4. Video embedded as a real `<video>` element — or, if Phase 0 failed, the CSS
+4. Video embedded as a real `<video>` element — or, if Gate A failed, the CSS
    fallback shipped and **described accurately** in the handoff.
-5. Part 1 stands alone; the seam is visible; Part 2 is the larger half.
-6. Someone non-technical has read it aloud without flinching.
-7. Brand tokens confined to one `:root` block, so the next client is a
+5. Written rights clearance on file, and the video's source recorded.
+6. Part 1 stands alone; the seam is visible; Part 2 is the larger half.
+7. Someone non-technical has read it aloud without flinching.
+8. Brand tokens confined to one `:root` block, so the next client is a
    colour-swap rather than a rebuild.
 
 ---
@@ -876,5 +1038,25 @@ lever for this audience. See §9.
 
 Any claim about how the desktop app, Cowork, connectors, skills or artifacts
 behave should be checked against Anthropic's own current documentation and help
-centre before each new client engagement. Record the date checked in the
-footer. This is the fastest-moving part of the page.
+centre before each new client engagement. Note the date checked in the footer.
+This is the fastest-moving part of the page.
+
+### 13.4 Rights and trademark
+
+The constraints in §6.1 and §10.1 come from Anthropic's own published terms:
+
+- **Anthropic Trademark Guidelines** — anthropic.com/legal/trademark-guidelines.
+  Marks may be used only as specifically permitted and in materials approved
+  beforehand; no alteration; nothing implying sponsorship, endorsement or
+  affiliation. Contact for an existing business relationship:
+  marketing@anthropic.com.
+- **Anthropic Commercial Terms of Service** —
+  anthropic.com/legal/commercial-terms, referenced by the licence file in their
+  public product repositories, which are marked "© Anthropic PBC. All rights
+  reserved."
+- **Claude Code legal and compliance docs** — docs.anthropic.com, which state
+  plainly that the Claude Code and Anthropic names and logos may not be used in
+  a way suggesting Anthropic built, endorses or is partnered with your product.
+
+Re-check these before each engagement. They are terms, not norms, and they
+change.
