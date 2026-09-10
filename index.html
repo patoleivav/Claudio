@@ -25,6 +25,9 @@
   --font:"Archivo","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
   --maxw:1080px;
+  --measure:640px;
+  --s-tight:12px; --s-close:16px; --s-block:24px;
+  --s-figure:40px; --s-sect:72px;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
@@ -60,10 +63,10 @@ p{margin:0}
 
 .eyebrow{
   font:600 10.5px/1 var(--font); letter-spacing:.15em; text-transform:uppercase;
-  color:var(--accent-strong); display:block; margin-bottom:12px;
+  color:var(--accent-strong); display:block; margin-bottom:var(--s-tight);
 }
-.say{font-size:15.5px; line-height:1.55; color:var(--muted); max-width:58ch;
-     text-wrap:pretty}
+.say{font-size:15.5px; line-height:1.55; color:var(--muted);
+     max-width:var(--measure); text-wrap:pretty}
 .note{font-size:13px; line-height:1.5; color:var(--muted)}
 .mono{font-family:var(--mono)}
 
@@ -72,22 +75,22 @@ p{margin:0}
 }
 
 /* ---------- masthead ---------- */
-.mast{padding-block:48px 40px}
-.id{display:flex; align-items:center; gap:10px; margin-bottom:34px}
+.mast{padding-block:56px var(--s-sect)}
+.id{display:flex; align-items:center; gap:10px; margin-bottom:40px}
 .mark{width:24px;height:24px;border-radius:6px;background:var(--blue-500);
       display:grid;place-items:center;flex:none}
 .mark svg{width:14px;height:14px;display:block}
 .id b{font-size:14.5px; font-weight:700; letter-spacing:-.02em}
 .id span{font:600 10px/1 var(--font); letter-spacing:.13em; text-transform:uppercase;
          color:var(--muted); padding-left:10px; border-left:1px solid var(--rule)}
-.mast h1{max-width:13ch; margin-bottom:18px}
-.mast .say{font-size:clamp(1.05rem,1.8vw,1.28rem); color:var(--ink); max-width:34ch;
-           text-wrap:balance; line-height:1.4}
+.mast h1{max-width:13ch; margin-bottom:var(--s-close)}
+.mast .say{font-size:clamp(1.05rem,1.8vw,1.28rem); color:var(--ink);
+           max-width:var(--measure); line-height:1.4}
 
 /* ---------- part 1 ---------- */
-.part1{padding-block:8px 56px}
-.part1 h2{max-width:26ch; margin-bottom:14px}
-.part1 .say{margin-bottom:34px; max-width:52ch; text-wrap:balance}
+.part1{padding-block:0 var(--s-sect)}
+.part1 h2{max-width:var(--measure); margin-bottom:var(--s-close)}
+.part1 .say{margin-bottom:var(--s-figure)}
 
 .curve{background:var(--surface); border:1px solid var(--rule);
        border-radius:14px; padding:28px 24px 24px}
@@ -105,27 +108,31 @@ p{margin:0}
 
 /* ---------- seam ---------- */
 .seam{background:var(--band); color:var(--band-ink)}
-.seam .wrap{padding-block:56px}
-.seam h2{max-width:22ch; margin-bottom:14px; font-size:clamp(1.5rem,3.4vw,2.2rem)}
-.seam p{color:var(--band-muted); font-size:15px; max-width:56ch; text-wrap:pretty}
+.seam .wrap{padding-block:var(--s-sect)}
+.seam h2{max-width:var(--measure); margin-bottom:var(--s-close);
+         font-size:clamp(1.5rem,3.4vw,2.2rem)}
+.seam p{color:var(--band-muted); font-size:15px; max-width:var(--measure);
+        text-wrap:pretty}
 
 /* ---------- part 2 ---------- */
-.part2{padding-block:8px}
+.part2{padding-block:0}
 .step{display:grid; grid-template-columns:minmax(0,390px) minmax(0,1fr);
-      gap:44px; padding-block:48px; border-top:1px solid var(--rule); align-items:start}
+      gap:44px; padding-block:var(--s-sect); border-top:1px solid var(--rule);
+      align-items:start}
 .part2 .step:first-of-type{border-top:0}
 @media (max-width:860px){ .step{grid-template-columns:1fr; gap:24px} }
 .step--wide{grid-template-columns:1fr; gap:28px}
 .step--wide .copy{max-width:56ch}
 
-.meta{display:flex; align-items:center; gap:9px; margin-bottom:16px; flex-wrap:wrap}
+.meta{display:flex; align-items:center; gap:9px; margin-bottom:var(--s-close);
+      flex-wrap:wrap}
 .n{font:600 11.5px/1 var(--mono); color:var(--accent-ink); background:var(--accent);
    width:22px; height:22px; border-radius:6px; display:grid; place-items:center; flex:none}
 .tag{font:600 9.5px/1 var(--font); letter-spacing:.11em; text-transform:uppercase;
      padding:5px 8px; border-radius:5px; background:var(--surface-2); color:var(--muted)}
 .tag--opt{background:transparent; border:1px solid var(--edge)}
-.step h3{margin-bottom:12px}
-.step .say{margin-bottom:14px}
+.step h3{margin-bottom:var(--s-close)}
+.step .say{margin-bottom:var(--s-close)}
 .step .gloss{font-size:13.5px; line-height:1.55; color:var(--muted);
              border-left:2px solid var(--blue-200); padding-left:13px; max-width:46ch;
              text-wrap:pretty}
@@ -206,20 +213,20 @@ p{margin:0}
   background:var(--surface); border:1px solid var(--rule); color:var(--muted)}
 
 /* ---------- close ---------- */
-.close{border-top:1px solid var(--rule); padding-block:56px 44px; margin-top:8px}
-.close h2{margin-bottom:32px; max-width:18ch}
+.close{border-top:1px solid var(--rule); padding-block:var(--s-sect) 48px}
+.close h2{margin-bottom:var(--s-figure); max-width:var(--measure)}
 .outs{display:grid; grid-template-columns:repeat(3,1fr); gap:26px}
 @media (max-width:740px){ .outs{grid-template-columns:1fr; gap:20px} }
 .out{border-top:2px solid var(--accent); padding-top:14px}
 .out b{display:block; font-size:14.5px; font-weight:600; margin-bottom:6px;
        letter-spacing:-.015em}
 .out span{font-size:13px; line-height:1.5; color:var(--muted)}
-.bridge{margin-top:36px; padding:22px 24px; border-radius:12px; background:var(--surface);
-        border:1px solid var(--rule); font-size:15px; line-height:1.6; max-width:62ch;
-        text-wrap:pretty}
+.bridge{margin-top:var(--s-figure); padding:22px 24px; border-radius:12px;
+        background:var(--surface); border:1px solid var(--rule); font-size:15px;
+        line-height:1.6; max-width:var(--measure); text-wrap:pretty}
 .bridge b{color:var(--accent-strong)}
 
-.foot{border-top:1px solid var(--rule); padding-block:22px 44px;
+.foot{border-top:1px solid var(--rule); padding-block:var(--s-block) 48px;
       display:flex; gap:14px; flex-wrap:wrap; justify-content:space-between;
       font-size:12px; color:var(--muted)}
 
@@ -295,8 +302,8 @@ p{margin:0}
 <section class="seam">
   <div class="wrap">
     <h2>Here is what stages two to five look like.</h2>
-    <p>Six steps, about twenty minutes, on your own laptop with your own files.
-      Nothing is uploaded anywhere.</p>
+    <p>Six steps, about twenty minutes. Your own laptop, your own files,
+      nothing uploaded anywhere.</p>
   </div>
 </section>
 
