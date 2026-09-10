@@ -1,4 +1,540 @@
-<figure class="step4-video">
+<title>Working With Claude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+
+<style>
+/* ============================================================
+   Working With Claude — AI Training Session #1
+   Atomic. Brand ramp derived entirely from #0052FF.
+   Neutrals are cool, biased toward the accent — chosen, not inherited.
+   ============================================================ */
+:root{
+  --blue-900:#062A78; --blue-800:#04359D; --blue-700:#0240C2;
+  --blue-600:#0149E2; --blue-500:#0052FF; --blue-400:#3878FF;
+  --blue-300:#6194FF; --blue-200:#8CB1FF; --blue-100:#C7D9FF;
+  --blue-50:#EDF3FF;
+
+  --paper:#FFFFFF;
+  --surface:#F5F7FC;
+  --surface-2:#ECF0F9;
+  --ink:#0B0E14;            /* 19.32:1 on paper */
+  --muted:#5A6478;          /*  5.95:1 on paper */
+  --rule:#DCE3F0;
+  --edge:#7B89A3;           /*  3.53:1 — interactive boundaries */
+  --accent:var(--blue-500); /*  5.75:1 on paper */
+  --accent-strong:var(--blue-700);
+  --accent-ink:#FFFFFF;
+  --ok:#0F7A4C; --warn:#8A5A00; --risk:#A31515;
+
+  --band:#0B0E14;           /* the seam, and the dark-theme ground */
+  --band-ink:#FFFFFF;
+  --band-muted:#AEB8CC;
+  --band-accent:var(--blue-300);
+
+  --font:"Archivo","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --maxw:1120px;
+  --r:12px;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0B0E14; --surface:#12161F; --surface-2:#1A1F2B;
+    --ink:#E8ECF5;            /* 16.33:1 */
+    --muted:#AEB8CC;          /*  9.68:1 */
+    --rule:#232A38; --edge:#5A6478;
+    --accent:var(--blue-300); /*  6.61:1 — never blue-500 as text on dark */
+    --accent-strong:var(--blue-200); --accent-ink:#FFFFFF;
+    --ok:#4ADE9B; --warn:#F0B429; --risk:#FF6B6B;
+    --band:#05070B; --band-ink:#FFFFFF; --band-muted:#AEB8CC;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0B0E14; --surface:#12161F; --surface-2:#1A1F2B;
+  --ink:#E8ECF5; --muted:#AEB8CC; --rule:#232A38; --edge:#5A6478;
+  --accent:var(--blue-300); --accent-strong:var(--blue-200); --accent-ink:#FFFFFF;
+  --ok:#4ADE9B; --warn:#F0B429; --risk:#FF6B6B;
+  --band:#05070B; --band-ink:#FFFFFF; --band-muted:#AEB8CC;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:var(--font); font-size:16px; line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--maxw); margin:0 auto; padding-inline:24px}
+@media (max-width:520px){ .wrap{padding-inline:18px} }
+
+h1,h2,h3{text-wrap:balance; margin:0; letter-spacing:-.022em; font-weight:700}
+h1{font-size:clamp(2rem,5vw,3.1rem); line-height:1.06}
+h2{font-size:clamp(1.5rem,3.4vw,2.1rem); line-height:1.12}
+h3{font-size:1.18rem; line-height:1.25; letter-spacing:-.015em}
+p{margin:0}
+.eyebrow{
+  font:600 11px/1 var(--font); letter-spacing:.14em; text-transform:uppercase;
+  color:var(--accent-strong);
+}
+.lede{font-size:clamp(1.02rem,1.6vw,1.18rem); color:var(--muted); max-width:62ch}
+.small{font-size:13.5px; color:var(--muted)}
+.mono{font-family:var(--mono)}
+
+a{color:var(--accent)}
+:where(button,a,[tabindex]):focus-visible{
+  outline:2px solid var(--accent); outline-offset:3px; border-radius:6px;
+}
+
+/* ---------- masthead ---------- */
+.mast{padding-block:44px 30px; border-bottom:1px solid var(--rule)}
+.mast__id{display:flex; align-items:center; gap:11px; margin-bottom:26px}
+.mark{
+  width:26px; height:26px; border-radius:7px; background:var(--blue-500);
+  display:grid; place-items:center; flex:none;
+}
+.mark svg{width:15px; height:15px; display:block}
+.mast__id b{font-size:15px; font-weight:700; letter-spacing:-.02em}
+.mast__id span{
+  font:600 10.5px/1 var(--font); letter-spacing:.12em; text-transform:uppercase;
+  color:var(--muted); padding-left:11px; border-left:1px solid var(--rule);
+}
+.mast h1{margin-bottom:16px; max-width:16ch}
+.promise{
+  font-size:clamp(1.05rem,1.9vw,1.3rem); line-height:1.45; max-width:54ch;
+  color:var(--ink); font-weight:500;
+}
+.promise em{font-style:normal; color:var(--accent); font-weight:600}
+
+/* ---------- part 1: the curve ---------- */
+.part1{padding-block:56px 60px}
+.part1__head{max-width:60ch; margin-bottom:34px}
+.part1__head h2{margin:10px 0 12px}
+
+.curve{
+  background:var(--surface); border:1px solid var(--rule); border-radius:var(--r);
+  padding:26px 22px 22px;
+}
+.curve svg{display:block; width:100%; height:auto; max-width:100%}
+.stages{
+  display:grid; grid-template-columns:repeat(5,1fr); gap:20px;
+  margin:22px 0 0; padding:22px 0 0; list-style:none;
+  border-top:1px solid var(--rule);
+}
+@media (max-width:860px){ .stages{grid-template-columns:repeat(2,1fr)} }
+@media (max-width:480px){ .stages{grid-template-columns:1fr; gap:16px} }
+.stage__n{
+  font:600 11px/1 var(--mono); color:var(--accent-strong);
+  letter-spacing:.06em; display:block; margin-bottom:7px;
+}
+.stage__name{font-size:15px; font-weight:600; letter-spacing:-.015em; margin-bottom:5px}
+.stage__txt{font-size:13.5px; line-height:1.5; color:var(--muted)}
+.locate{margin-top:24px; font-size:14.5px; color:var(--muted); font-style:italic; max-width:56ch}
+
+/* ---------- the seam ---------- */
+.seam{background:var(--band); color:var(--band-ink); margin-block:0}
+.seam .wrap{padding-block:52px}
+.seam p{
+  font-size:clamp(1.25rem,3vw,1.85rem); line-height:1.3; font-weight:600;
+  letter-spacing:-.022em; max-width:22ch; text-wrap:balance;
+}
+.seam .small{color:var(--band-muted); margin-top:14px; font-size:14px}
+.seam b{color:var(--band-accent); font-weight:600}
+
+/* ---------- part 2: the steps ---------- */
+.part2{padding-block:56px 20px}
+.step{
+  display:grid; grid-template-columns:minmax(0,0.86fr) minmax(0,1.14fr);
+  gap:38px; padding-block:44px; border-top:1px solid var(--rule);
+  align-items:start;
+}
+.step:first-of-type{border-top:0; padding-top:8px}
+.step--wide{grid-template-columns:1fr; gap:26px}
+.step--wide .step__copy{max-width:62ch}
+.step--wide .step__body,.step--wide .step__gloss{max-width:60ch}
+@media (max-width:880px){ .step{grid-template-columns:1fr; gap:26px} }
+
+.step__meta{display:flex; align-items:center; gap:10px; margin-bottom:14px; flex-wrap:wrap}
+.step__n{
+  font:600 12px/1 var(--mono); color:var(--accent-ink); background:var(--accent);
+  width:24px; height:24px; border-radius:6px; display:grid; place-items:center; flex:none;
+}
+.tag{
+  font:600 10px/1 var(--font); letter-spacing:.1em; text-transform:uppercase;
+  padding:5px 8px; border-radius:5px; background:var(--surface-2); color:var(--muted);
+}
+.tag--opt{background:transparent; border:1px solid var(--edge); color:var(--muted)}
+.step h3{margin-bottom:10px}
+.step__body{font-size:15.5px; line-height:1.6; color:var(--ink); margin-bottom:12px; max-width:52ch}
+.step__gloss{
+  font-size:13.5px; line-height:1.55; color:var(--muted);
+  border-left:2px solid var(--blue-200); padding-left:12px; max-width:50ch;
+}
+.step__demo{min-width:0}
+
+/* generic mock chrome (matches src/components.css, which the video is rendered from) */
+.win{
+  background:var(--paper); border:1px solid var(--rule); border-radius:10px;
+  overflow:hidden; box-shadow:0 1px 2px rgba(11,14,20,.04),0 10px 28px rgba(11,14,20,.06);
+}
+.win__bar{
+  display:flex; align-items:center; gap:9px; padding:9px 13px;
+  background:var(--surface); border-bottom:1px solid var(--rule);
+}
+.win__dots{display:flex; gap:5px}
+.win__dots i{width:8px; height:8px; border-radius:50%; background:var(--rule)}
+.win__title{font-size:11.5px; color:var(--muted)}
+.win__body{padding:16px}
+
+.msg{display:grid; gap:9px}
+.msg__q{font-size:13.5px; font-weight:600}
+.msg__a{
+  font-size:13.5px; line-height:1.55; color:var(--muted);
+  background:var(--surface); border-radius:9px; padding:11px 13px;
+}
+.msg__a b{color:var(--ink); font-weight:600}
+
+/* switch / toggle controls */
+.ctrls{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px}
+.sw{
+  display:inline-flex; align-items:center; gap:9px; cursor:pointer;
+  border:1px solid var(--edge); background:var(--paper); color:var(--ink);
+  border-radius:8px; padding:8px 12px; font:500 13px/1 var(--font);
+}
+.sw[aria-pressed="true"]{border-color:var(--accent); background:var(--blue-50); color:var(--accent-strong)}
+:root[data-theme="dark"] .sw[aria-pressed="true"],
+:root:not([data-theme="light"]) .sw[aria-pressed="true"]{background:var(--surface-2)}
+.sw__track{
+  width:30px; height:17px; border-radius:9px; background:var(--edge);
+  position:relative; flex:none; transition:background .18s ease;
+}
+.sw__track::after{
+  content:""; position:absolute; top:2px; left:2px; width:13px; height:13px;
+  border-radius:50%; background:var(--paper); transition:transform .18s ease;
+}
+.sw[aria-pressed="true"] .sw__track{background:var(--accent)}
+.sw[aria-pressed="true"] .sw__track::after{transform:translateX(13px)}
+
+/* step 2 — folder tree */
+.tree{display:grid; grid-template-columns:1fr; gap:5px}
+.folder{
+  display:flex; align-items:center; gap:10px; width:100%; text-align:left;
+  border:1px solid transparent; background:transparent; cursor:pointer;
+  border-radius:8px; padding:9px 11px; color:var(--ink);
+  font:500 13.5px/1 var(--mono);
+}
+.folder:hover{background:var(--surface)}
+.folder[aria-selected="true"]{background:var(--blue-50); border-color:var(--blue-200); color:var(--accent-strong)}
+:root[data-theme="dark"] .folder[aria-selected="true"],
+:root:not([data-theme="light"]) .folder[aria-selected="true"]{background:var(--surface-2); border-color:var(--blue-800)}
+.folder svg{width:15px; height:15px; flex:none; color:var(--accent)}
+.reveal{
+  margin-top:12px; padding:13px 14px; border-radius:9px;
+  background:var(--surface); border:1px solid var(--rule);
+  font-size:13.5px; line-height:1.55; color:var(--muted); min-height:74px;
+}
+.reveal b{color:var(--ink); font-weight:600; display:block; margin-bottom:4px; font-size:13.5px}
+
+/* step 5 — dashboard */
+.dash{display:grid; grid-template-columns:repeat(2,1fr); gap:11px}
+@media (max-width:420px){ .dash{grid-template-columns:1fr} }
+.tile{
+  border:1px solid var(--rule); border-radius:10px; padding:13px 14px; background:var(--paper);
+}
+.tile__k{
+  font:600 10px/1 var(--font); letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:9px; display:block;
+}
+.tile__v{
+  font-size:1.62rem; font-weight:700; letter-spacing:-.03em; line-height:1;
+  font-variant-numeric:tabular-nums;
+}
+.tile__v small{font-size:.86rem; font-weight:600; color:var(--muted); letter-spacing:0}
+.bar{height:5px; border-radius:3px; background:var(--surface-2); margin-top:10px; overflow:hidden}
+.bar i{display:block; height:100%; border-radius:3px; background:var(--accent); width:0}
+.chips{display:flex; gap:5px; margin-top:10px; flex-wrap:wrap}
+.chip{
+  font:600 10.5px/1 var(--mono); padding:4px 7px; border-radius:5px;
+}
+.chip--w{background:color-mix(in srgb,var(--warn) 15%,transparent); color:var(--warn)}
+.chip--r{background:color-mix(in srgb,var(--risk) 13%,transparent); color:var(--risk)}
+.chip--o{background:color-mix(in srgb,var(--ok) 13%,transparent); color:var(--ok)}
+.spark{margin-top:10px; display:block; width:100%; height:30px}
+
+/* step 4 — video */
+.step4-video{margin:0}
+.step4-video video{
+  width:100%; height:auto; max-width:1280px; display:block;
+  border:1px solid var(--rule); border-radius:10px; background:var(--surface);
+}
+.step4-video figcaption{
+  font-size:12.5px; line-height:1.5; color:var(--muted); margin-top:10px; max-width:58ch;
+}
+
+/* step 6 — replication */
+.repl svg{display:block; width:100%; height:auto}
+.shelf{display:flex; gap:6px; flex-wrap:wrap; margin-top:13px}
+.shelf span{
+  font:500 12px/1 var(--mono); padding:6px 9px; border-radius:6px;
+  background:var(--surface); border:1px solid var(--rule); color:var(--muted);
+}
+
+/* ---------- close ---------- */
+.close{border-top:1px solid var(--rule); padding-block:52px 40px; margin-top:26px}
+.close h2{margin-bottom:26px; max-width:20ch}
+.outcomes{display:grid; grid-template-columns:repeat(3,1fr); gap:24px}
+@media (max-width:760px){ .outcomes{grid-template-columns:1fr; gap:18px} }
+.outcome{border-top:2px solid var(--accent); padding-top:13px}
+.outcome b{display:block; font-size:15px; font-weight:600; margin-bottom:5px; letter-spacing:-.015em}
+.outcome span{font-size:13.5px; line-height:1.55; color:var(--muted)}
+.bridge{
+  margin-top:34px; padding:20px 22px; border-radius:var(--r);
+  background:var(--surface); border:1px solid var(--rule);
+  font-size:15.5px; line-height:1.55; max-width:60ch;
+}
+.bridge b{color:var(--accent-strong)}
+
+.foot{
+  border-top:1px solid var(--rule); padding-block:24px 40px;
+  display:flex; gap:14px; flex-wrap:wrap; justify-content:space-between;
+  font-size:12.5px; color:var(--muted);
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important; transition:none!important}
+}
+@media print{
+  .seam{background:#fff!important; color:#000!important}
+  .seam p{color:#000!important}
+  .step,.outcome,.curve{break-inside:avoid}
+  video{display:none}
+}
+</style>
+
+<main class="wrap">
+
+  <!-- ================= masthead ================= -->
+  <header class="mast">
+    <div class="mast__id">
+      <span class="mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3.2" fill="#fff"/>
+        <ellipse cx="12" cy="12" rx="10.5" ry="4.4" stroke="#fff" stroke-width="1.5" transform="rotate(30 12 12)"/>
+        <ellipse cx="12" cy="12" rx="10.5" ry="4.4" stroke="#fff" stroke-width="1.5" transform="rotate(-30 12 12)"/></svg>
+      </span>
+      <b>Atomic</b>
+      <span>AI Training &middot; Session 1</span>
+    </div>
+    <h1>Working With Claude</h1>
+    <p class="promise">Twenty minutes from now, Claude will be reading your own files.
+      <em>Three minutes from now, you'll know why that matters.</em></p>
+  </header>
+
+  <!-- ================= part 1 — the curve ================= -->
+  <section class="part1" aria-labelledby="curve-h">
+    <div class="part1__head">
+      <p class="eyebrow">Before the demo</p>
+      <h2 id="curve-h">There are five ways to work with AI. Most people only know the first.</h2>
+      <p class="lede">You don't need to know how any of it is built. You do need to know
+        which rung you're standing on &mdash; because the gap between rung one and rung four
+        is where all the value sits.</p>
+    </div>
+
+    <div class="curve">
+      <svg viewBox="0 0 1000 250" role="img" aria-labelledby="curve-t curve-d">
+        <title id="curve-t">The five stages of working with Claude</title>
+        <desc id="curve-d">A rising curve through five stages — Chat, Context, Connect,
+          Delegate, Compound — steepening toward the top. A marked hinge between Delegate
+          and Compound separates what you do alone from what your team does together.</desc>
+
+        <!-- baseline -->
+        <line x1="42" y1="228" x2="962" y2="228" stroke="var(--rule)" stroke-width="1"/>
+
+        <!-- the curve -->
+        <path d="M70,214 C170,209 215,204 285,196 C365,187 432,174 500,158
+                 C575,140 645,120 715,96 C790,70 872,48 930,34"
+              fill="none" stroke="var(--accent)" stroke-width="2.5"
+              stroke-linecap="round" class="curve__path"/>
+
+        <!-- individual / team hinge -->
+        <line x1="822" y1="18" x2="822" y2="228" stroke="var(--edge)"
+              stroke-width="1" stroke-dasharray="4 4"/>
+        <text x="812" y="246" text-anchor="end" font-family="var(--font)"
+              font-size="12" font-weight="600" fill="var(--muted)">You</text>
+        <text x="832" y="246" font-family="var(--font)"
+              font-size="12" font-weight="600" fill="var(--accent-strong)">Your team</text>
+
+        <!-- nodes -->
+        <g class="curve__nodes">
+          <g><circle cx="70"  cy="214" r="6.5" fill="var(--paper)" stroke="var(--accent)" stroke-width="2.5"/>
+             <text x="70"  y="196" text-anchor="middle" font-family="var(--font)" font-size="13" font-weight="600" fill="var(--ink)">Chat</text></g>
+          <g><circle cx="285" cy="196" r="6.5" fill="var(--paper)" stroke="var(--accent)" stroke-width="2.5"/>
+             <text x="285" y="178" text-anchor="middle" font-family="var(--font)" font-size="13" font-weight="600" fill="var(--ink)">Context</text></g>
+          <g><circle cx="500" cy="158" r="6.5" fill="var(--paper)" stroke="var(--accent)" stroke-width="2.5"/>
+             <text x="500" y="140" text-anchor="middle" font-family="var(--font)" font-size="13" font-weight="600" fill="var(--ink)">Connect</text></g>
+          <g><circle cx="715" cy="96"  r="6.5" fill="var(--paper)" stroke="var(--accent)" stroke-width="2.5"/>
+             <text x="715" y="78"  text-anchor="middle" font-family="var(--font)" font-size="13" font-weight="600" fill="var(--ink)">Delegate</text></g>
+          <g><circle cx="930" cy="34"  r="7.5" fill="var(--accent)" stroke="var(--accent)" stroke-width="2.5"/>
+             <text x="930" y="16"  text-anchor="middle" font-family="var(--font)" font-size="13" font-weight="700" fill="var(--accent-strong)">Compound</text></g>
+        </g>
+      </svg>
+
+      <ol class="stages">
+        <li><span class="stage__n">01</span>
+          <p class="stage__name">Chat</p>
+          <p class="stage__txt">You ask, it answers. Genuinely useful &mdash; but it starts from
+            nothing every time, and it has never seen your business.</p></li>
+        <li><span class="stage__n">02</span>
+          <p class="stage__name">Context</p>
+          <p class="stage__txt">It can see what you actually work with. The answers stop being generic.</p></li>
+        <li><span class="stage__n">03</span>
+          <p class="stage__name">Connect</p>
+          <p class="stage__txt">It reaches into where your work already lives, with your permission.
+            Now it knows what happened yesterday.</p></li>
+        <li><span class="stage__n">04</span>
+          <p class="stage__name">Delegate</p>
+          <p class="stage__txt">You stop asking and start assigning. The same work happens the same way,
+            without you starting it.</p></li>
+        <li><span class="stage__n">05</span>
+          <p class="stage__name">Compound</p>
+          <p class="stage__txt">What one person worked out becomes how the team works. Here the returns
+            stop being linear.</p></li>
+      </ol>
+
+      <p class="locate">Most leaders we meet are at stage one, and assume that's the whole thing.</p>
+    </div>
+  </section>
+</main>
+
+<!-- ================= the seam ================= -->
+<section class="seam">
+  <div class="wrap">
+    <p>So here's what stages two through five actually look like.</p>
+    <p class="small">Six steps. About twenty minutes. You'll do all of it on your own laptop,
+      with your own files &mdash; <b>nothing is uploaded anywhere.</b></p>
+  </div>
+</section>
+
+<main class="wrap">
+  <!-- ================= part 2 — the demo ================= -->
+  <section class="part2" aria-labelledby="demo-h">
+    <h2 id="demo-h" class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">The six steps</h2>
+
+    <!-- STEP 1 -->
+    <article class="step">
+      <div>
+        <div class="step__meta"><span class="step__n">1</span>
+          <span class="tag">Chat &rarr; Context</span><span class="tag">2 min</span></div>
+        <h3>Claude moves in</h3>
+        <p class="step__body">Right now Claude probably lives in a browser tab. It's helpful, but
+          it's a stranger &mdash; it can't see anything you actually work with. The desktop app
+          changes the address.</p>
+        <p class="step__gloss">Your demand plan is a spreadsheet sitting on your laptop.
+          A browser tab can't open it. The app can.</p>
+      </div>
+      <div class="step__demo">
+        <div class="ctrls">
+          <button class="sw" id="sw-app" aria-pressed="false">
+            <span class="sw__track" aria-hidden="true"></span> Use the desktop app</button>
+        </div>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="win__title" id="app-chrome">Browser tab</span></div>
+          <div class="win__body">
+            <div class="msg">
+              <p class="msg__q">Where's my demand plan drifting this month?</p>
+              <p class="msg__a" id="app-answer" aria-live="polite">I can't open files on your computer
+                from here. If you paste the numbers in, I'll take a look at them.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- STEP 2 -->
+    <article class="step">
+      <div>
+        <div class="step__meta"><span class="step__n">2</span>
+          <span class="tag">Context</span><span class="tag">4 min</span></div>
+        <h3>Claude gets a desk</h3>
+        <p class="step__body">Cowork is where Claude does work that touches your files. You point it
+          at folders. That's the whole idea &mdash; and it's the most important thing to understand today.</p>
+        <p class="step__gloss">Folders, not uploads. You're not sending anything anywhere &mdash; Claude
+          reads the files where they already sit, only while the app is open, and only in the
+          folders you point it at.</p>
+      </div>
+      <div class="step__demo">
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="win__title">Cowork &mdash; connected folders</span></div>
+          <div class="win__body">
+            <div class="tree" role="tablist" aria-label="Connected folders" id="tree">
+              <button class="folder" role="tab" aria-selected="true"  aria-controls="tree-out" data-r="0">
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.5A1.5 1.5 0 0 1 3 2h3.2l1.3 1.5H13A1.5 1.5 0 0 1 14.5 5v6.5A1.5 1.5 0 0 1 13 13H3a1.5 1.5 0 0 1-1.5-1.5v-8Z"/></svg>/S&amp;OP/</button>
+              <button class="folder" role="tab" aria-selected="false" aria-controls="tree-out" data-r="1" tabindex="-1">
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.5A1.5 1.5 0 0 1 3 2h3.2l1.3 1.5H13A1.5 1.5 0 0 1 14.5 5v6.5A1.5 1.5 0 0 1 13 13H3a1.5 1.5 0 0 1-1.5-1.5v-8Z"/></svg>/Suppliers/</button>
+              <button class="folder" role="tab" aria-selected="false" aria-controls="tree-out" data-r="2" tabindex="-1">
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.5A1.5 1.5 0 0 1 3 2h3.2l1.3 1.5H13A1.5 1.5 0 0 1 14.5 5v6.5A1.5 1.5 0 0 1 13 13H3a1.5 1.5 0 0 1-1.5-1.5v-8Z"/></svg>/Demand Plan/</button>
+              <button class="folder" role="tab" aria-selected="false" aria-controls="tree-out" data-r="3" tabindex="-1">
+                <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.5 3.5A1.5 1.5 0 0 1 3 2h3.2l1.3 1.5H13A1.5 1.5 0 0 1 14.5 5v6.5A1.5 1.5 0 0 1 13 13H3a1.5 1.5 0 0 1-1.5-1.5v-8Z"/></svg>/Purchase Orders/</button>
+            </div>
+            <div class="reveal" id="tree-out" role="tabpanel" aria-live="polite">
+              <b>What Claude can do now</b>
+              <span id="tree-txt">Read last month's deck and draft this month's first pass.</span>
+            </div>
+          </div>
+        </div>
+        <p class="small" style="margin-top:11px">Nothing was uploaded. Nothing left your laptop.
+          Claude just knows where things are now.</p>
+      </div>
+    </article>
+
+    <!-- STEP 3 -->
+    <article class="step">
+      <div>
+        <div class="step__meta"><span class="step__n">3</span>
+          <span class="tag">Connect</span><span class="tag">3 min</span></div>
+        <h3>Claude gets reach</h3>
+        <p class="step__body">A connector is just permission &mdash; it lets Claude look at your inbox
+          or your calendar the way a new analyst would, with your say-so and nothing more.</p>
+        <p class="step__gloss">You can switch a connector off as easily as you switched it on.
+          Claude only ever sees what your own login can see.</p>
+      </div>
+      <div class="step__demo">
+        <div class="ctrls">
+          <button class="sw" id="sw-mail" aria-pressed="false">
+            <span class="sw__track" aria-hidden="true"></span> Email</button>
+          <button class="sw" id="sw-cal" aria-pressed="false">
+            <span class="sw__track" aria-hidden="true"></span> Calendar</button>
+        </div>
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="win__title">Cowork</span></div>
+          <div class="win__body">
+            <div class="msg">
+              <p class="msg__q">What should I worry about this week?</p>
+              <p class="msg__a" id="conn-answer" aria-live="polite">I don't have visibility into your
+                inbox or calendar, so I can only talk in general terms. Typically you'd look at supplier
+                confirmations, POs past their promise date, and whatever's on the S&amp;OP agenda.</p>
+            </div>
+          </div>
+        </div>
+        <p class="small" style="margin-top:11px">Flip both switches and watch the answer stop being
+          advice and start being <em>your</em> week.</p>
+      </div>
+    </article>
+
+    <!-- STEP 4 -->
+    <article class="step step--wide">
+      <div class="step__copy">
+        <div class="step__meta"><span class="step__n">4</span>
+          <span class="tag">Delegate</span><span class="tag">6 min</span></div>
+        <h3>Claude gets a habit</h3>
+        <p class="step__body">You just did something useful. A skill is you telling Claude
+          <em>do that again, the same way, every morning, without me asking.</em></p>
+        <p class="step__gloss">You don't write code for this. You do the thing once, then ask Claude
+          to remember how you did it.</p>
+        <p class="small" style="margin-top:14px">That's the shift. You stopped asking and started assigning.</p>
+      </div>
+      <div class="step__demo">
+        <figure class="step4-video">
   <video
     id="briefing"
     width="1280" height="880"
@@ -16,3 +552,203 @@
     using fictional suppliers and orders.
   </figcaption>
 </figure>
+      </div>
+    </article>
+
+    <!-- STEP 5 -->
+    <article class="step">
+      <div>
+        <div class="step__meta"><span class="step__n">5</span>
+          <span class="tag">Delegate</span><span class="tag">4 min</span></div>
+        <h3>It becomes a thing you keep</h3>
+        <p class="step__body">The briefing is words. Sometimes you want a surface instead &mdash;
+          something you and your team open, that's current every time you look at it.</p>
+        <p class="step__gloss">The page you're reading right now is one of these.</p>
+      </div>
+      <div class="step__demo">
+        <div class="win">
+          <div class="win__bar"><span class="win__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="win__title">Supply position &mdash; this morning</span></div>
+          <div class="win__body">
+            <div class="dash">
+              <div class="tile"><span class="tile__k">On-time in full</span>
+                <p class="tile__v" data-count="94.2" data-suffix="%">94.2<small>%</small></p>
+                <svg class="spark" viewBox="0 0 120 30" role="img" aria-label="On-time in full over eight weeks, trending gently up from 91 to 94.2 percent">
+                  <polyline points="4,22 20,20 36,23 52,17 68,15 84,16 100,11 116,8"
+                    fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="116" cy="8" r="3" fill="var(--accent)"/></svg></div>
+              <div class="tile"><span class="tile__k">Inventory cover</span>
+                <p class="tile__v" data-count="38" data-suffix=" days">38<small> days</small></p>
+                <div class="bar"><i data-w="63%"></i></div>
+                <p class="small" style="margin-top:7px;font-size:11.5px">Target band 30&ndash;45 days</p></div>
+              <div class="tile"><span class="tile__k">Open PO exceptions</span>
+                <p class="tile__v" data-count="12">12</p>
+                <div class="chips"><span class="chip chip--r">4 critical</span><span class="chip chip--w">8 watch</span></div></div>
+              <div class="tile"><span class="tile__k">Supplier risk</span>
+                <p class="tile__v" data-count="4">4</p>
+                <div class="chips"><span class="chip chip--r">1 Kestrel</span><span class="chip chip--w">3 amber</span><span class="chip chip--o">12 clear</span></div></div>
+            </div>
+          </div>
+        </div>
+        <p class="small" style="margin-top:11px">Built from the same briefing, in one sentence:
+          <span class="mono" style="font-size:12.5px">"make that a dashboard I can open each morning."</span></p>
+      </div>
+    </article>
+
+    <!-- STEP 6 -->
+    <article class="step">
+      <div>
+        <div class="step__meta"><span class="step__n">6</span>
+          <span class="tag">Compound</span><span class="tag tag--opt">Optional &middot; usually Session 2</span></div>
+        <h3>It compounds</h3>
+        <p class="step__body">Everything so far was you. The step after is your team &mdash; the briefing
+          you built becomes theirs, pointed at their own patch.</p>
+        <p class="step__gloss">This is where it stops being a personal productivity trick and starts
+          being how the team works. It's also where you'll want a little structure around who owns
+          what &mdash; which is the conversation for Session 2.</p>
+      </div>
+      <div class="step__demo repl">
+        <div class="win"><div class="win__body">
+          <svg viewBox="0 0 420 150" role="img" aria-labelledby="rep-t rep-d">
+            <title id="rep-t">One skill becoming the team's</title>
+            <desc id="rep-d">A single skill card on the left connects outward to four teammates on
+              the right, each running their own copy of it.</desc>
+            <rect x="8" y="52" width="112" height="46" rx="8" fill="var(--blue-50)" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="64" y="72" text-anchor="middle" font-family="var(--font)" font-size="11" font-weight="600" fill="var(--accent-strong)">Morning</text>
+            <text x="64" y="86" text-anchor="middle" font-family="var(--font)" font-size="11" font-weight="600" fill="var(--accent-strong)">Briefing</text>
+            <g stroke="var(--edge)" stroke-width="1.4" fill="none" stroke-dasharray="3 3">
+              <path d="M120,75 C170,75 190,26 240,26"/><path d="M120,75 C170,75 190,59 240,59"/>
+              <path d="M120,75 C170,75 190,92 240,92"/><path d="M120,75 C170,75 190,125 240,125"/>
+            </g>
+            <g font-family="var(--font)" font-size="10.5" fill="var(--muted)">
+              <g><circle cx="256" cy="26" r="9" fill="var(--surface-2)" stroke="var(--rule)"/><text x="274" y="30">Planning &mdash; EMEA</text></g>
+              <g><circle cx="256" cy="59" r="9" fill="var(--surface-2)" stroke="var(--rule)"/><text x="274" y="63">Procurement</text></g>
+              <g><circle cx="256" cy="92" r="9" fill="var(--surface-2)" stroke="var(--rule)"/><text x="274" y="96">Logistics</text></g>
+              <g><circle cx="256" cy="125" r="9" fill="var(--surface-2)" stroke="var(--rule)"/><text x="274" y="129">S&amp;OP lead</text></g>
+            </g>
+          </svg>
+          <div class="shelf"><span>Morning Briefing</span><span>Supplier Chaser</span>
+            <span>S&amp;OP Prep</span><span>Exception Digest</span></div>
+        </div></div>
+        <p class="small" style="margin-top:11px">A shared skill library &mdash; written once, adapted by
+          whoever picks it up.</p>
+      </div>
+    </article>
+  </section>
+
+  <!-- ================= close ================= -->
+  <section class="close" aria-labelledby="close-h">
+    <p class="eyebrow">After week one</p>
+    <h2 id="close-h">Three things will have changed</h2>
+    <div class="outcomes">
+      <div class="outcome"><b>Your morning starts differently</b>
+        <span>You don't open the day by triaging an inbox. The triage is already done and waiting
+          in six lines.</span></div>
+      <div class="outcome"><b>One report writes its own first draft</b>
+        <span>Whichever recurring thing you most resent producing. You edit it now instead of
+          building it.</span></div>
+      <div class="outcome"><b>The question changes</b>
+        <span>You stop asking <em>what can it do</em> and start asking <em>what should I hand it</em>.
+          That's the whole shift.</span></div>
+    </div>
+    <p class="bridge">This is the foundation. From here it splits two ways &mdash;
+      <b>deeper for you</b>, as the work you hand over gets bigger, and <b>outward to your team</b>,
+      as what you worked out stops being yours alone.</p>
+  </section>
+
+  <footer class="foot">
+    <span>Atomic &middot; AI Training Session #1</span>
+    <span>Product interfaces shown are illustrations. Suppliers, orders and figures are fictional.</span>
+  </footer>
+</main>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---- step 1: browser vs desktop ---- */
+  var swApp = document.getElementById('sw-app'),
+      chrome = document.getElementById('app-chrome'),
+      ans1 = document.getElementById('app-answer');
+  swApp.addEventListener('click', function(){
+    var on = swApp.getAttribute('aria-pressed') !== 'true';
+    swApp.setAttribute('aria-pressed', on);
+    chrome.textContent = on ? 'Claude — desktop' : 'Browser tab';
+    ans1.innerHTML = on
+      ? 'Opened <b>/Demand Plan/FY26-Q3.xlsx</b>. Weeks 28–31 are running <b>6.4% under</b> the '
+        + 'signed-off plan, almost entirely on <b>SKU-2214</b>. The other twelve lines are within tolerance.'
+      : "I can't open files on your computer from here. If you paste the numbers in, I'll take a look at them.";
+  });
+
+  /* ---- step 2: folder tree ---- */
+  var REVEAL = [
+    "Read last month's deck and draft this month's first pass.",
+    "Pull lead times out of forty contracts without you opening one.",
+    "Compare this week's forecast to last week's and say what moved.",
+    "Find every PO that slipped past its promise date."
+  ];
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('#tree .folder')),
+      treeTxt = document.getElementById('tree-txt');
+  function pick(i){
+    tabs.forEach(function(t,j){
+      t.setAttribute('aria-selected', j===i);
+      t.tabIndex = j===i ? 0 : -1;
+    });
+    treeTxt.textContent = REVEAL[i];
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener('click', function(){ pick(i); });
+    t.addEventListener('keydown', function(e){
+      var n = e.key==='ArrowDown'||e.key==='ArrowRight' ?  1
+            : e.key==='ArrowUp'  ||e.key==='ArrowLeft'  ? -1 : 0;
+      if(!n) return;
+      e.preventDefault();
+      var next = (i + n + tabs.length) % tabs.length;
+      pick(next); tabs[next].focus();
+    });
+  });
+
+  /* ---- step 3: connectors ---- */
+  var mail = document.getElementById('sw-mail'),
+      cal  = document.getElementById('sw-cal'),
+      ans3 = document.getElementById('conn-answer');
+  var ANSWERS = {
+    '00': "I don't have visibility into your inbox or calendar, so I can only talk in general terms. "
+        + "Typically you'd look at supplier confirmations, POs past their promise date, and whatever's "
+        + "on the S&amp;OP agenda.",
+    '10': "From your inbox: <b>Nordwind Components</b> emailed Sunday night — the moulded housings slip "
+        + "two weeks, which lands on the Q3 build. <b>Kestrel Polymers</b> moved lead time from 21 to 28 days. "
+        + "I can't see your week without the calendar.",
+    '01': "Your <b>S&amp;OP review is Thursday at 10:00</b> and the demand file hasn't been touched since "
+        + "the 4th. There's a Kestrel quarterly call at 14:30. I can't see what's landed in your inbox yet.",
+    '11': "Three things. <b>Nordwind Components</b> emailed Sunday night — the moulded housings slip two "
+        + "weeks, which lands on the Q3 build. Your <b>S&amp;OP review is Thursday at 10</b> and the demand "
+        + "file hasn't been touched since the 4th. And <b>four POs</b> crossed their promise date over the weekend."
+  };
+  function conn(){
+    var k = (mail.getAttribute('aria-pressed')==='true'?'1':'0')
+          + (cal .getAttribute('aria-pressed')==='true'?'1':'0');
+    ans3.innerHTML = ANSWERS[k];
+  }
+  [mail,cal].forEach(function(b){
+    b.addEventListener('click', function(){
+      b.setAttribute('aria-pressed', b.getAttribute('aria-pressed')!=='true');
+      conn();
+    });
+  });
+
+  /* ---- step 5: dashboard settles in from a visible resting state ---- */
+  var bars = document.querySelectorAll('.bar i');
+  function fill(){ bars.forEach(function(b){ b.style.width = b.dataset.w; }); }
+  if(reduce){ fill(); }
+  else{
+    bars.forEach(function(b){ b.style.transition = 'width .9s cubic-bezier(.22,1,.36,1)'; });
+    if('IntersectionObserver' in window){
+      var io = new IntersectionObserver(function(es){
+        es.forEach(function(e){ if(e.isIntersecting){ fill(); io.disconnect(); } });
+      }, {threshold:.3});
+      io.observe(document.querySelector('.dash'));
+    } else { fill(); }
+  }
+})();
+</script>

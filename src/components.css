@@ -24,8 +24,8 @@
   --ok:#0F7A4C; --warn:#8A5A00; --risk:#A31515;
 
   --radius:10px;
-  --font:"Inter","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
-  --mono:"SF Mono",ui-monospace,"Cascadia Mono",Menlo,Consolas,monospace;
+  --font:"Archivo","Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
 }
 
 @media (prefers-color-scheme:dark){
