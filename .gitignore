@@ -1,0 +1,21 @@
+# Build intermediates
+node_modules/
+dist/
+build/out/
+assets/generated/
+
+# Raw media — never commit unscrubbed captures
+*.mov
+raw/
+recordings/
+
+# Encoded media before inlining
+*.mp4
+*.webm
+mp4.txt
+webm.txt
+poster.txt
+
+# OS
+.DS_Store
+Thumbs.db
