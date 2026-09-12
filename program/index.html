@@ -161,7 +161,6 @@ section { margin-top: var(--s6); }
 /* ===== exercise cards ================================================== */
 .ex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(258px, 1fr)); gap: var(--s3); margin-top: var(--s4); }
 .ex { border: 1px solid var(--line); border-radius: var(--r); background: var(--card2); overflow: hidden; display: flex; flex-direction: column; }
-.ex-fig { background: var(--sunken); border-bottom: 1px solid var(--line); display: block; width: 100%; aspect-ratio: 200 / 132; max-width: 100%; }
 .ex-body { padding: var(--s3); display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .ex-body h4 { font-size: 14.5px; }
 .ex-dose { font-family: var(--mono); font-size: 11.5px; color: var(--accent); font-weight: 500; }
@@ -175,16 +174,14 @@ section { margin-top: var(--s6); }
 .tiny { font-family: var(--mono); font-size: 10.5px; color: var(--ink2); text-decoration: none; border: 1px solid var(--line); border-radius: 4px; padding: 3px 7px; background: var(--card); }
 .tiny:hover { border-color: var(--ink3); }
 
-/* figure drawing */
-.fig-floor { stroke: var(--line); stroke-width: 1; }
-.fig-prop { stroke: var(--ink3); stroke-width: 2; stroke-linecap: round; fill: none; }
-.fig-prop-fill { fill: var(--line); }
-.fig-limb { stroke: var(--ink2); stroke-linecap: round; stroke-linejoin: round; fill: none; }
-.fig-foot { stroke: var(--ink2); stroke-linecap: round; }
-.fig-torso { stroke: var(--ink); stroke-linecap: round; stroke-linejoin: round; fill: none; }
-.fig-head { fill: var(--ink); }
-.fig-far { opacity: .42; }
-.fig-weight { fill: var(--accent); }
+/* embedded demonstration video */
+.ex-vid { border-bottom: 1px solid var(--line); background: var(--sunken); }
+.ex-vid iframe, .pl-vid iframe { display: block; width: 100%; aspect-ratio: 16 / 9; border: 0; background: #000; }
+.vid-cap { display: block; padding: 7px 10px; font-family: var(--mono); font-size: 10.5px; line-height: 1.35;
+  color: var(--ink2); text-decoration: none; border-top: 1px solid var(--line); background: var(--card2); }
+.vid-cap:hover { color: var(--accent); }
+.pl-vid { width: 100%; max-width: 560px; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--card); }
+.pl-vid .vid-cap { text-align: left; }
 
 /* ===== player =========================================================== */
 .player { position: fixed; inset: 0; z-index: 40; background: var(--paper); display: flex; flex-direction: column; }
@@ -194,7 +191,6 @@ section { margin-top: var(--s6); }
 .pl-prog i { display: block; height: 100%; background: var(--accent); transition: width .3s; }
 .pl-body { flex: 1; overflow-y: auto; padding: var(--s5) var(--s4) 0; }
 .pl-in { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--s3); }
-.pl-fig { width: 100%; max-width: 380px; aspect-ratio: 200 / 132; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); }
 .pl-in h2 { font-size: clamp(20px, 5vw, 27px); }
 .pl-side { font-family: var(--mono); font-size: 12px; color: var(--accent-2); letter-spacing: .06em; text-transform: uppercase; }
 .timer { font-family: var(--mono); font-size: clamp(44px, 13vw, 68px); font-weight: 500; font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -.02em; }
@@ -404,5 +400,4 @@ footer { margin-top: var(--s7); padding-top: var(--s4); border-top: 1px solid va
 
 <div class="player" id="player" hidden></div>
 <script src="data.js"></script>
-<script src="anim.js"></script>
 <script src="app.js"></script>

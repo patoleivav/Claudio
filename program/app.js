@@ -88,7 +88,6 @@ function toast(msg) {
   setTimeout(() => t.remove(), 2600);
 }
 function levelOf(id, dflt) { return S.levels[id] || dflt; }
-function ytSearch(q) { return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q); }
 
 /* ===== header and phase rail ============================================ */
 
@@ -281,20 +280,30 @@ function playHere(btn, v) {
 
 /* ===== exercise card ==================================================== */
 
-const liveAnims = [];
-function stopAnims() { while (liveAnims.length) { const f = liveAnims.pop(); try { f(); } catch (e) {} } }
+function exVideo(ex, cls) {
+  /* The exercise's own explanation video, embedded. Lazy so a day with twelve
+     exercises does not open twelve players at once, and every embed carries an
+     open-on-YouTube link underneath in case the page cannot frame video. */
+  const wrap = h('div', { class: cls || 'ex-vid' });
+  wrap.appendChild(h('iframe', {
+    src: 'https://www.youtube-nocookie.com/embed/' + ex.vid + '?rel=0&modestbranding=1',
+    title: ex.vidT || ex.n, loading: 'lazy',
+    allow: 'accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture',
+    allowfullscreen: '', referrerpolicy: 'strict-origin-when-cross-origin',
+  }));
+  wrap.appendChild(h('a', {
+    class: 'vid-cap', href: 'https://www.youtube.com/watch?v=' + ex.vid,
+    target: '_blank', rel: 'noopener',
+    text: (ex.vidT || ex.n) + ' — open on YouTube \u2197',
+  }));
+  return wrap;
+}
 
 function exCard(it, s) {
   const ex = it.ex;
   const lvl = levelOf(it.id, it.level);
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('class', 'ex-fig');
-  svg.setAttribute('role', 'img');
-  svg.setAttribute('aria-label', 'Figure showing ' + ex.n);
-  liveAnims.push(animateFigure(svg, ex.a && ex.a.length > 1 ? ex.a : [ex.p], ex.prop));
-
   const lvlRow = h('div', { class: 'lvl' }, [
-    h('button', { type: 'button', text: '−', 'aria-label': 'Easier level for ' + ex.n, onclick: () => setLevel(it.id, Math.max(1, lvl - 1)) }),
+    h('button', { type: 'button', text: '\u2212', 'aria-label': 'Easier level for ' + ex.n, onclick: () => setLevel(it.id, Math.max(1, lvl - 1)) }),
     h('span', { class: 'n', text: 'level ' + lvl + '/5' }),
     h('button', { type: 'button', text: '+', 'aria-label': 'Harder level for ' + ex.n, onclick: () => setLevel(it.id, Math.min(5, lvl + 1)) }),
   ]);
@@ -309,12 +318,9 @@ function exCard(it, s) {
     h('p', { class: 'ex-why', text: ex.why }),
     h('p', { class: 'ex-dose', style: 'color:var(--ink2)', text: 'Level ' + lvl + ': ' + ex.lv[lvl - 1] }),
     ex.care ? h('p', { class: 'ex-care', text: ex.care }) : null,
-    h('div', { class: 'ex-foot' }, [
-      lvlRow,
-      h('a', { class: 'tiny', href: ytSearch(ex.vq), target: '_blank', rel: 'noopener', text: 'Watch a demo ↗' }),
-    ]),
+    h('div', { class: 'ex-foot' }, [lvlRow]),
   ]);
-  return h('div', { class: 'ex' }, [svg, body]);
+  return h('div', { class: 'ex' }, [exVideo(ex), body]);
 }
 function setLevel(id, n) { S.levels[id] = n; save(); renderCal(); if (playerState) renderPlayerStep(); }
 
@@ -372,7 +378,7 @@ function closePlayer() {
   clearInterval(tick); playerState = null;
   $('#player').hidden = true; $('#player').replaceChildren();
   document.body.style.overflow = '';
-  stopAnims(); renderAll();
+  renderAll();
 }
 function nextStep(manual) {
   const p = playerState; if (!p) return;
@@ -403,7 +409,6 @@ function renderPlayerStep() {
   const p = playerState; if (!p) return;
   const st = p.steps[p.i];
   const inn = $('#pl-in'); inn.replaceChildren();
-  stopAnims();
 
   $('#pl-bar').style.width = ((p.i / p.steps.length) * 100).toFixed(1) + '%';
   $('#pl-title').textContent = p.s.name + ' · ' + (p.i + 1) + '/' + p.steps.length;
@@ -415,11 +420,7 @@ function renderPlayerStep() {
   } else {
     const ex = st.it.ex;
     const lvl = levelOf(st.it.id, st.it.level);
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'pl-fig'); svg.setAttribute('role', 'img');
-    svg.setAttribute('aria-label', 'Figure showing ' + ex.n);
-    inn.appendChild(svg);
-    liveAnims.push(animateFigure(svg, ex.a && ex.a.length > 1 ? ex.a : [ex.p], ex.prop));
+    inn.appendChild(exVideo(ex, 'pl-vid'));
 
     inn.appendChild(h('span', { class: 'eyebrow', text: (st.it.block === 'open' ? 'Warm-up' : st.it.block === 'close' ? 'Cool-down' : ex.tgt) + (st.sets > 1 ? ' · round ' + st.set + ' of ' + st.sets : '') }));
     inn.appendChild(h('h2', { text: ex.n }));
@@ -430,7 +431,6 @@ function renderPlayerStep() {
     inn.appendChild(h('p', { class: 'pl-cue', style: 'font-style:italic;color:var(--ink3)', text: 'Level ' + lvl + ': ' + ex.lv[lvl - 1] }));
     if (ex.care) inn.appendChild(h('p', { class: 'ex-care', style: 'text-align:left', text: ex.care }));
     inn.appendChild(h('div', { class: 'btn-row', style: 'margin-top:0;justify-content:center' }, [
-      h('a', { class: 'tiny', href: ytSearch(ex.vq), target: '_blank', rel: 'noopener', text: 'Watch a demo ↗' }),
       h('button', { class: 'tiny', type: 'button', text: 'Easier', onclick: () => setLevel(st.it.id, Math.max(1, lvl - 1)) }),
       h('button', { class: 'tiny', type: 'button', text: 'Harder', onclick: () => setLevel(st.it.id, Math.min(5, lvl + 1)) }),
     ]));
@@ -453,7 +453,6 @@ function updateTimer() {
 
 function finishPlayer() {
   const p = playerState; clearInterval(tick);
-  stopAnims();
   const inn = $('#pl-in'); inn.replaceChildren();
   $('#pl-bar').style.width = '100%';
   const day = p.day;
